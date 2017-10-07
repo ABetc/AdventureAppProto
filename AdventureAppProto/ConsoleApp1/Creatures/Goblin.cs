@@ -67,7 +67,8 @@ namespace Main.Creatures
                 GameItems.Weapon_Javelin.DamageDie,
                 GameItems.Weapon_Javelin.NumberOfDice,
                 GameItems.Weapon_Javelin.Range,
-                GameItems.Weapon_Javelin.Value));
+                GameItems.Weapon_Javelin.Value,
+                GameItems.Weapon_Javelin.Ammo));
 
             RollInitiative();
             Initiative = PrivateInititative;
@@ -300,16 +301,16 @@ namespace Main.Creatures
                 int enumNumber = AvailableDirections[RandomChoice];
 
                 // adjust cover values at location before change
-                if (!CoverName.Count().Equals(0))       // && !CurrentTile.Cover.Count.Equals(0) ???
+                if (!CoverName.Count().Equals(0))
                 {
                     GameItems.Cover CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
-
+                    
                     CurrentCover.RoomUsed -= 1;
                     CoverName = "";
-                    CoverBonus = 0;
+                    CoverBonus = 0;                    
                 }
 
-                // change coordinate position and check for new cover
+                // change coordinate position
                 switch (enumNumber)
                 {
                     case 1:
@@ -329,6 +330,9 @@ namespace Main.Creatures
                         break;
                 }
 
+                //update current player tile and check for new cover
+                CurrentTile = Methods.FindTile(Coordinates[0], Coordinates[1], battleGrid);
+
                 List<GameItems.Cover> GatherCover = CurrentTile.Cover.Where(cover => cover.RoomUsed < cover.Room &&
                 !cover.Name.Equals(Player.CoverName)).ToList();
 
@@ -339,11 +343,11 @@ namespace Main.Creatures
                     CoverName = GatherCover[RandomChoice - 1].Name;
                     CoverBonus = GatherCover[RandomChoice - 1].CoverBonus;
 
-                    Methods.Typewriter(string.Format("{0} runs and takes cover behind a {1}.", Name, CoverName));
+                    Methods.Typewriter(string.Format("{0} runs and takes cover behind {1}.", Name, CoverName));
                 }
                 else
                 {
-                    Methods.Typewriter(string.Format("{0} runs towards a {1}.", Name, CurrentTile.Description));
+                    Methods.Typewriter(string.Format("{0} runs towards {1}.", Name, CurrentTile.Description));
                 }
             }
         }

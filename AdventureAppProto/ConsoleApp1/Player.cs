@@ -12,12 +12,12 @@ namespace Main
         public const string Name = "Ben";
         public const string Pronoun = "he";
         public const string Possessive = "his";
-        public static int HitPoints = 25;
+        public static int HitPoints = 250;  // orginially 25
         public static int Damage;
         public static int ArmorClass = 14;
         public static int Proficiency = 2;
         public static int STR = 8;
-        public static int DEX = 14;
+        public static int DEX = 140;        // orginally 14
         public static int CON = 12;
         public static int INT = 14;
         public static int WIS = 10;

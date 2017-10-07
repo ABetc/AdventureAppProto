@@ -11,8 +11,8 @@ namespace Main
     {
         private List<List<Methods.Tile>> BattleGrid;
         private List<Creature> Enemies;
-        private List<Creature> EnemiesEscaped;
-        private List<Creature> EnemiesKilled;
+        private List<Creature> EnemiesEscaped = new List<Creature>();
+        private List<Creature> EnemiesKilled = new List<Creature>();
         private int SurpriseInitiative;
         private bool ParleyExists;
         private int TurnActions;
@@ -383,7 +383,18 @@ namespace Main
             {
                 Methods.Typewriter(string.Format("{0} is dead!", Target.Name));
 
-                EnemiesKilled.Add(Enemies.Where(enemy => enemy.Name.Equals(Target.Name)).First());
+                /*
+                EnemiesKilled.AddRange(Enemies.Where(enemy => enemy.Damage >= enemy.HitPoints));
+                foreach (var enemy in EnemiesKilled)
+                {
+                    Console.WriteLine("(names of enemies in \"killed\" list:");
+                    Console.WriteLine(enemy.Name);
+                }
+                */
+
+                EnemiesKilled.Add(Target);
+                // EnemiesKilled.Add(Enemies.Where(enemy => enemy.Name.Equals(Target.Name)).First());
+
                 Player.GrappledBy = Player.GrappledBy.Where(enemy => !enemy.Name.Equals(Target.Name)).ToList();
                 Enemies = Enemies.Where(enemy => !enemy.Name.Equals(Target.Name)).ToList();
             }
@@ -666,6 +677,7 @@ namespace Main
                 else
                 {
                     Methods.Typewriter("Enemies have taken all positions of cover!");
+                    return;
                 }
             }
             else
