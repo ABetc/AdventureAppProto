@@ -85,37 +85,52 @@ namespace Main.Creatures
 
         public override void Fight(List<Creature> listOfEnemies, List<Creature> enemiesEscaped, List<List<Methods.Tile>> battleGrid)
         {
-            // fight behavior: grapples if 3+ enemies are close or stabs and runs to range
-            // retreats if HP below 1/2
+            // fight behavior: 
+            // if 3+ enemies are close: grapple, else: melee and run away
+            // if HP below 1/2: retreat
             if (Damage < HitPoints * 0.5 && listOfEnemies.Count > 2)
             {
                 if (Coordinates.SequenceEqual(Player.Coordinates))
                 {
                     if (listOfEnemies.Where(enemy => enemy.Coordinates.SequenceEqual(Player.Coordinates)).Count() > 2 &&
                         Player.GrappledBy.Count < 3)
-                    { Grapple(); }
+                    { Grapple(battleGrid); }
 
-                    else { Melee(); Move(battleGrid); }
+                    else { Melee(battleGrid); Move(battleGrid); }
                 }
                 else { Ranged(); Move(battleGrid); }
             }
             else { Flee(listOfEnemies, enemiesEscaped, battleGrid); }
         }
 
-        private void Melee()
+        private void Melee(List<List<Methods.Tile>> battleGrid)
         {
             // check if grappled
             if (GrappledBy.Count > 1)
             {
                 Methods.Typewriter(string.Format("{0} is completely restrained!", Name));
-                BreakGrappled();
+                BreakGrapple();
                 return;
             }
             else if (!GrappledBy.Count.Equals(0))
             {
                 Methods.Typewriter(string.Format("{0} is being grappled by {1}!", Name, GrappledBy.First()));
-                BreakGrappled();
+                BreakGrapple();
                 return;
+            }
+
+            // check if behind cover
+            if (!CoverName.Count().Equals(0)) { Console.WriteLine("(behind cover: true)"); } else { Console.WriteLine("(behind cover: false)"); }    // temp
+            if (!CoverName.Count().Equals(0))
+            {
+                Methods.Tile CurrentTile = Methods.FindTile(Coordinates[0], Coordinates[1], battleGrid);
+                GameItems.Cover CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
+
+                CurrentCover.RoomUsed -= Size;
+                CoverName = "";
+                CoverBonus = 0;
+
+                if (!CoverName.Count().Equals(0)) { Console.WriteLine("(behind cover: true)"); } else { Console.WriteLine("(behind cover: false)"); }    // temp
             }
 
             // roll to hit
@@ -209,13 +224,25 @@ namespace Main.Creatures
             }
         }
 
-        private void Grapple()
+        private void Grapple(List<List<Methods.Tile>> battleGrid)
         {
             // check if grappling
             if (Player.GrappledBy.Any(enemy => enemy.Name.Equals(Name)))
             {
                 Methods.Typewriter(string.Format("{0} has {1} grappled and won't let go!", Name, Player.Name));
                 return;
+            }
+
+            // check if behind cover
+            if (!CoverName.Count().Equals(0))
+            {
+                Methods.Tile CurrentTile = Methods.FindTile(Coordinates[0], Coordinates[1], battleGrid);
+                GameItems.Cover CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
+
+                CurrentCover.RoomUsed -= Size;
+                CoverName = "";
+                CoverBonus = 0;
+
             }
 
             // roll to grab
@@ -237,7 +264,7 @@ namespace Main.Creatures
             }
         }
 
-        private void BreakGrappled()
+        private void BreakGrapple()
         {
             // roll to break grapple
             int RollToBreak = Methods.RollStat(STR);
@@ -269,6 +296,7 @@ namespace Main.Creatures
             if (!GrappledBy.Count.Equals(0))
             {
                 Methods.Typewriter(string.Format("{0} is still grappled!", Name));
+                return;
             }
 
             // find available coordinates
@@ -304,10 +332,10 @@ namespace Main.Creatures
                 if (!CoverName.Count().Equals(0))
                 {
                     GameItems.Cover CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
-                    
-                    CurrentCover.RoomUsed -= 1;
+
+                    CurrentCover.RoomUsed -= Size;
                     CoverName = "";
-                    CoverBonus = 0;                    
+                    CoverBonus = 0;
                 }
 
                 // change coordinate position
@@ -339,7 +367,7 @@ namespace Main.Creatures
                 if (!GatherCover.Count.Equals(0))
                 {
                     RandomChoice = Methods.RollD(GatherCover.Count);
-                    GatherCover[RandomChoice - 1].RoomUsed += 1;
+                    GatherCover[RandomChoice - 1].RoomUsed += Size;
                     CoverName = GatherCover[RandomChoice - 1].Name;
                     CoverBonus = GatherCover[RandomChoice - 1].CoverBonus;
 
@@ -357,8 +385,17 @@ namespace Main.Creatures
             // check position
             if (Coordinates.SequenceEqual(Player.Coordinates))
             {
-                Methods.Typewriter(string.Format("{0} runs from the fight!", Name));
-                Move(battleGrid);
+                Methods.Typewriter(string.Format("{0} flees from {1}!", Name, Player.Name));
+
+                if (!GrappledBy.Count.Equals(0))
+                {
+                    BreakGrapple();
+                }
+
+                if (GrappledBy.Count.Equals(0))
+                {
+                    Move(battleGrid);
+                }
             }
             else
             {

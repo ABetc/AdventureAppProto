@@ -21,13 +21,13 @@ namespace Main
 
         Dictionary<string, string> GridImages = new Dictionary<string, string>()
         {
-            { "2x2", "|(1,1)|(2,1)| ^\n|(1,2)|(2,2)| N\n" },
-            { "2x3", "|(1,1)|(2,1)| ^\n|(1,2)|(2,2)| |\n|(1,3)|(2,3)| N\n" },
-            { "3x2", "|(1,1)|(2,1)|(3,1)| ^\n|(1,2)|(2,2)|(3,2)| N\n" },
-            { "3x3", "|(1,1)|(2,1)|(3,1)| ^\n|(1,2)|(2,2)|(3,2)| |\n|(1,3)|(2,3)|(3,3)| N\n" },
-            { "3x4", "|(1,1)|(2,1)|(3,1)| ^\n|(1,2)|(2,2)|(3,2)| |\n|(1,3)|(2,3)|(3,3)| N\n|(1,4)|(2,4)|(3,4)|\n" },
-            { "4x3", "|(1,1)|(2,1)|(3,1)|(4,1)| ^\n|(1,2)|(2,2)|(3,2)|(4,2)| |\n|(1,3)|(2,3)|(3,3)|(4,3)| N\n" },
-            { "4x4", "|(1,1)|(2,1)|(3,1)|(4,1)| ^\n|(1,2)|(2,2)|(3,2)|(4,2)| |\n|(1,3)|(2,3)|(3,3)|(4,3)| N\n|(1,4)|(2,4)|(3,4)|(4,4)|\n" }
+            { "2x2", "|(1,1)|(2,1)| N\n|(1,2)|(2,2)| ^\n" },
+            { "2x3", "|(1,1)|(2,1)| N\n|(1,2)|(2,2)| ^\n|(1,3)|(2,3)| |\n" },
+            { "3x2", "|(1,1)|(2,1)|(3,1)| N\n|(1,2)|(2,2)|(3,2)| ^\n" },
+            { "3x3", "|(1,1)|(2,1)|(3,1)| N\n|(1,2)|(2,2)|(3,2)| ^\n|(1,3)|(2,3)|(3,3)| |\n" },
+            { "3x4", "|(1,1)|(2,1)|(3,1)| N\n|(1,2)|(2,2)|(3,2)| ^\n|(1,3)|(2,3)|(3,3)| |\n|(1,4)|(2,4)|(3,4)|\n" },
+            { "4x3", "|(1,1)|(2,1)|(3,1)|(4,1)| N\n|(1,2)|(2,2)|(3,2)|(4,2)| ^\n|(1,3)|(2,3)|(3,3)|(4,3)| |\n" },
+            { "4x4", "|(1,1)|(2,1)|(3,1)|(4,1)| N\n|(1,2)|(2,2)|(3,2)|(4,2)| ^\n|(1,3)|(2,3)|(3,3)|(4,3)| |\n|(1,4)|(2,4)|(3,4)|(4,4)|\n" }
         };
 
         enum Player_Enum
@@ -38,7 +38,8 @@ namespace Main
             BreakGrapple,
             ReleaseGrapple,
             Parley,
-            Retreat
+            Retreat,
+            EndTurn
         }
 
         public Combat(List<List<Methods.Tile>> grid, List<Creature> enemies, string gridDimenstions, int surpriseBonus = 0, bool parley = false)
@@ -89,7 +90,6 @@ namespace Main
 
             // display map view along with Player and Enemy coordinates
             Console.WriteLine(GridImages[GridImage_dimensions]);                                                                                    // temp
-            Console.WriteLine();                                                                                                                    // temp    
             Console.WriteLine(Player.Name + ": " + Player.Coordinates[0] + ", " + Player.Coordinates[1]);                                           // temp
             foreach (Creature enemy in Enemies) { Console.WriteLine(enemy.Name + ": " + enemy.Coordinates[0] + ", " + enemy.Coordinates[1]); }      // temp
             Console.WriteLine();                                                                                                                    // temp    
@@ -97,12 +97,14 @@ namespace Main
             // Player Turn Loop
             while (Player.IsAlive() && Enemies.Count > 0 && TurnActions < 2)
             {
+                // check if player is grappled
                 if (Player.GrappledBy.Count > 0)
                 {
-                    List<Creature> GatherSmall = Player.GrappledBy.Where(enemy => enemy.Size.Equals(Creature.Sizes_Enum.Small)).ToList();
+                    List<Creature> GatherSmall = Player.GrappledBy.Where(enemy => enemy.Size.Equals((int)Creature.Sizes_Enum.Small)).ToList();
                     List<string> GatherNames = Player.GrappledBy.Select(enemy => enemy.Name).ToList();
 
-                    if (GatherSmall.Count > 2 || Player.GrappledBy.Count - GatherSmall.Count > 1)
+                    // check if player is restrained
+                    if (GatherSmall.Count > 2 || (Player.GrappledBy.Count - GatherSmall.Count) > 1)
                     {
                         Methods.Typewriter(string.Format("{0} is completely restrained by {1} and {2}!",
                             Player.Name, Methods.ManyNames(GatherNames), GatherNames.Last()));
@@ -118,8 +120,17 @@ namespace Main
                     }
                     else
                     {
-                        Methods.Typewriter(string.Format("{0} is caught by {1} and can't move!", Player.Name, GatherNames.First()));
-
+                        if (Player.GrappledBy.Count > 1)
+                        {
+                            Methods.Typewriter(string.Format("{0} is caught by {1} and {2} and can't move!",
+                                Player.Name, Methods.ManyNames(GatherNames), GatherNames.Last()));
+                        }
+                        else
+                        {
+                            Methods.Typewriter(string.Format("{0} is caught by {1} and can't move!", 
+                                Player.Name, GatherNames.First()));
+                        }
+                        
                         choices[1] = "Attack";
                         choices[2] = "Break Grapple";
 
@@ -165,6 +176,12 @@ namespace Main
                         results[Methods.AddKey(results)] = (int)Player_Enum.Parley;
                     }
 
+                    if (TurnActions > 0)
+                    {
+                        choices[Methods.AddKey(choices)] = "End turn";
+                        results[Methods.AddKey(results)] = (int)Player_Enum.EndTurn;
+                    }
+
                     // if Tile at Player coordinates has a "flee" object, add "retreat" options
                 }
 
@@ -201,6 +218,10 @@ namespace Main
                     case (int)Player_Enum.Retreat:
                         Retreat();
                         break;
+
+                    case (int)Player_Enum.EndTurn:
+                        TurnActions += 1;
+                        break;
                 }
             }
 
@@ -226,14 +247,14 @@ namespace Main
             while (true)
             {
                 Console.WriteLine(" Attack with:");
-                int weaponNumber = 1;
                 List<GameItems.Item> WeaponsCarried = new List<GameItems.Item>();
+                int weaponNumber = 1;
 
                 foreach (GameItems.Item item in Player.Inventory)
                 {
                     if (item.GetType().Equals(typeof(GameItems.Weapon)))
                     {
-                        Console.WriteLine(" " + weaponNumber + " - " + item.Name + " (range: " + item.Range + " tile(s))");
+                        Console.WriteLine(" " + weaponNumber + " - " + item.Name + " (range: " + (item.Range+1) + " tile(s))");
                         WeaponsCarried.Add(item);
                         weaponNumber++;
                     }
@@ -271,7 +292,7 @@ namespace Main
 
             if (!Player.GrappledBy.Count.Equals(0))
             {
-                GatherInRange = GatherInRange.Where(enemy => !enemy.CoverName.Count().Equals(0)).ToList();
+                GatherInRange = GatherInRange.Where(enemy => enemy.CoverName.Count().Equals(0)).ToList();
             }
 
             if (GatherInRange.Count.Equals(0))
@@ -302,18 +323,9 @@ namespace Main
             Creature Target = GatherInRange[__playerChoice - 1];
 
             // roll to hit
-            if (Player.GrappledBy.Count.Equals(0))
+            if (!Player.GrappledBy.Count.Equals(0))
             {
                 Methods.Typewriter(string.Format("{0} makes an unwieldy strike on {1}!", Player.Name, Target.Name));
-            }
-            else if (!Player.CoverName.Count().Equals(0) && ChosenWeapon.Range < 1)
-            {
-                Methods.Typewriter(string.Format("{0} rushes out from cover to attack {1}!", Player.Name, Target.Name));
-                Player.CoverName = "";
-            }
-            else if (!Player.CoverName.Count().Equals(0) && ChosenWeapon.Range > 0)
-            {
-                Methods.Typewriter(string.Format("{0} leans out and takes aim at {1}!", Player.Name, Target.Name));
             }
             else if (Player.CoverName.Count().Equals(0) && ChosenWeapon.Range < 1)
             {
@@ -323,12 +335,25 @@ namespace Main
             {
                 Methods.Typewriter(string.Format("{0} takes aim at {1}!", Player.Name, Target.Name));
             }
+            else if (!Player.CoverName.Count().Equals(0) && ChosenWeapon.Range < 1)
+            {
+                Methods.Typewriter(string.Format("{0} rushes out from cover to attack {1}!", Player.Name, Target.Name));
+                Player.CoverName = "";
+            }
+            else if (!Player.CoverName.Count().Equals(0) && ChosenWeapon.Range > 0)
+            {
+                Methods.Typewriter(string.Format("{0} leans out and takes aim at {1}!", Player.Name, Target.Name));
+            }            
 
             int RollToHit = Methods.RollD(20);
 
             if (RollToHit.Equals(20))
             {
-                Methods.Print("Attack Roll", RollToHit);
+                Console.WriteLine("Attack Roll: Natural 20");
+                Console.WriteLine();
+                Methods.Pause();
+                Methods.Pause();
+                Methods.Pause();
 
                 int damage = ChosenWeapon.DamageCrit() + Methods.StatMod(Player.WeaponStat(ChosenWeapon));
                 Target.Damage += damage;
@@ -383,18 +408,16 @@ namespace Main
             {
                 Methods.Typewriter(string.Format("{0} is dead!", Target.Name));
 
-                /*
-                EnemiesKilled.AddRange(Enemies.Where(enemy => enemy.Damage >= enemy.HitPoints));
-                foreach (var enemy in EnemiesKilled)
+                // check if target was behind cover and adjust tile cover figures
+                if (!Target.CoverName.Equals(0))
                 {
-                    Console.WriteLine("(names of enemies in \"killed\" list:");
-                    Console.WriteLine(enemy.Name);
+                    Methods.Tile TargetTile = Methods.FindTile(Target.Coordinates[0], Target.Coordinates[1], BattleGrid);
+                    GameItems.Cover TargetCover = TargetTile.Cover.Where(cover => cover.Name.Equals(Target.CoverName, StringComparison.Ordinal)).First();
+                    TargetCover.RoomUsed -= Target.Size;
                 }
-                */
 
+                // add Target to EnemiesKilled list, remove from Enemies and GrappledBy lists
                 EnemiesKilled.Add(Target);
-                // EnemiesKilled.Add(Enemies.Where(enemy => enemy.Name.Equals(Target.Name)).First());
-
                 Player.GrappledBy = Player.GrappledBy.Where(enemy => !enemy.Name.Equals(Target.Name)).ToList();
                 Enemies = Enemies.Where(enemy => !enemy.Name.Equals(Target.Name)).ToList();
             }
@@ -440,9 +463,10 @@ namespace Main
 
             foreach (Creature enemy in GatherClose)
             {
-                Console.WriteLine(" " + GatherClose.IndexOf(enemy) + 1 + " - " + enemy.Name);
+                Console.WriteLine(" " + (GatherClose.IndexOf(enemy) + 1) + " - " + enemy.Name);
             }
 
+            Console.WriteLine();
             int _playerChoice = Methods.GetPlayerChoice(GatherClose.Count);
             Creature Target = GatherClose[_playerChoice - 1];
 
@@ -450,11 +474,13 @@ namespace Main
             int RollToGrapple = Methods.RollStat(Player.STR) + Player.Proficiency;
             int StrengthContest = Methods.RollStat(Target.STR);
 
+            Methods.Typewriter(string.Format("{0} reaches out for {1}...", Player.Name, Target.Name));
+
             if (RollToGrapple >= StrengthContest)
             {
                 Target.GrappledBy.Add(Player.Name);
 
-                Methods.Typewriter(string.Format("{0} is grappled!", Target.Name));
+                Methods.Typewriter(string.Format("{0} is grappled! ({1} vs {2})", Target.Name, RollToGrapple, StrengthContest));
 
                 TurnActions += 2;
                 return;
@@ -477,9 +503,10 @@ namespace Main
 
             foreach (Creature enemy in Player.GrappledBy)
             {
-                Console.WriteLine(" " + Player.GrappledBy.IndexOf(enemy) + 1 + " - " + enemy.Name);
+                Console.WriteLine(" " + (Player.GrappledBy.IndexOf(enemy) + 1) + " - " + enemy.Name);
             }
 
+            Console.WriteLine();
             int playerChoice = Methods.GetPlayerChoice(Player.GrappledBy.Count);
             Creature Target = Player.GrappledBy[playerChoice - 1];
 
@@ -494,7 +521,8 @@ namespace Main
             }
             else
             {
-                Methods.Typewriter(string.Format("{0} struggles but can't break free!", Player.Name));
+                Methods.Typewriter(string.Format("{0} struggles but can't break free! ({1} vs {2})", 
+                    Player.Name, RollToBreak, StrengthContest));
 
                 TurnActions += 2;
                 return;
@@ -568,11 +596,11 @@ namespace Main
                 List<string> GatherCover = Methods.FindTile(Player.Coordinates[0], Player.Coordinates[1], BattleGrid)
                     .Cover.Where(cover => cover.RoomUsed < cover.Room).Select(cover => cover.Name).ToList();
 
-                if (GatherCover.Count > 1 && !Player.CoverName.Count().Equals(0))
+                if (!Player.CoverName.Count().Equals(0) && GatherCover.Count > 1)
                 {
                     choices[3] = "Change Cover";
                 }
-                else if (!GatherCover.Count.Equals(0) && !Player.CoverName.Count().Equals(0))
+                else if (Player.CoverName.Count().Equals(0) && GatherCover.Count > 0)
                 {
                     choices[3] = "Take Cover";
                 }
@@ -677,12 +705,15 @@ namespace Main
                 else
                 {
                     Methods.Typewriter("Enemies have taken all positions of cover!");
+                    TurnActions += 1;
                     return;
                 }
             }
             else
             {
                 Methods.Typewriter("(there is no place to take cover)");
+                TurnActions += 1;
+                return;
             }
 
             if (TurnActions < 2) { Console.WriteLine("Take Cover?"); }
@@ -693,7 +724,6 @@ namespace Main
             if (PlayerChoice.Equals(choices.Count))
             {
                 TurnActions += 1;
-                return;
             }
             else
             {
@@ -720,10 +750,17 @@ namespace Main
         {
             Methods.Typewriter("(enemy turn)");                                         // temp
 
+            for (int x=0; x < Enemies.Count; x++)
+            {
+                Enemies[x].Fight(Enemies, EnemiesEscaped, BattleGrid);
+            }
+
+            /*
             foreach (Creature enemy in Enemies)
             {
                 enemy.Fight(Enemies, EnemiesEscaped, BattleGrid);
             }
+            */
 
             Player.CheckHealth();
             PlayerTurn();

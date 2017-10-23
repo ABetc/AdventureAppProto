@@ -181,8 +181,8 @@ namespace Main
 
         public static void Typewriter(string text, string colour = "none")
         {
-            int typeSpeed = 5;          // 50
-            int SentencePause = 5;    // 600
+            int typeSpeed = 0;          // 50
+            int SentencePause = 0;    // 600
             int characterLimit = 80;
             int currentLineCount = 0;
 

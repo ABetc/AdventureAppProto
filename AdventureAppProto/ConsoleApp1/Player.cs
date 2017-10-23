@@ -17,7 +17,7 @@ namespace Main
         public static int ArmorClass = 14;
         public static int Proficiency = 2;
         public static int STR = 8;
-        public static int DEX = 140;        // orginally 14
+        public static int DEX = 14;
         public static int CON = 12;
         public static int INT = 14;
         public static int WIS = 10;

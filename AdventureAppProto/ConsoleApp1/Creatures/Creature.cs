@@ -29,7 +29,7 @@ namespace Main.Creatures
 
         public enum Sizes_Enum
         {
-            Tiny,
+            Tiny=1,
             Small,
             Medium,
             Large,

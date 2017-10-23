@@ -55,23 +55,27 @@ namespace Main
         //COVER: 
         public static readonly Item Cover_FallenTree = new Cover(
             "fallen tree",
-            3, 4);
+            8, 4);
 
         public static readonly Item Cover_LargeBoulder = new Cover(
             "large boulder",
-            3, 6);
+            6, 6);
+
+        public static readonly Item Cover_SmallBoulder = new Cover(
+            "small boulder",
+            3, 2);
 
         public static readonly Item Cover_LargeTree = new Cover(
             "large tree",
-            2, 4);
+            4, 4);
 
         public static readonly Item Cover_SmallTree = new Cover(
             "small tree",
-            1, 2);
+            3, 2);
 
         public static readonly Item Cover_ClusterSmallTrees = new Cover(
             "cluster of small trees",
-            3, 4);
+            6, 4);
 
         // BASE CLASSES:
         public class Item
