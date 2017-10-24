@@ -16,7 +16,7 @@ namespace Main
         public static int Damage;
         public static int ArmorClass = 14;
         public static int Proficiency = 2;
-        public static int STR = 8;
+        public static int STR = 80;      // originally 8
         public static int DEX = 14;
         public static int CON = 12;
         public static int INT = 14;
@@ -49,6 +49,16 @@ namespace Main
                 GameItems.Weapon_ShortSword.NumberOfDice,
                 GameItems.Weapon_ShortSword.Range,
                 GameItems.Weapon_ShortSword.Value));
+
+            Inventory.Add(new GameItems.Weapon(
+                GameItems.Weapon_HandXBow.Name,
+                GameItems.Weapon_HandXBow.Description,
+                GameItems.Weapon_HandXBow.StrengthBased,
+                GameItems.Weapon_HandXBow.DamageDie,
+                GameItems.Weapon_HandXBow.NumberOfDice,
+                GameItems.Weapon_HandXBow.Range,
+                GameItems.Weapon_HandXBow.Value,
+                GameItems.Weapon_HandXBow.Ammo));
         }
 
         public static int WeaponStat(GameItems.Item weapon)

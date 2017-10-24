@@ -120,7 +120,6 @@ namespace Main.Creatures
             }
 
             // check if behind cover
-            if (!CoverName.Count().Equals(0)) { Console.WriteLine("(behind cover: true)"); } else { Console.WriteLine("(behind cover: false)"); }    // temp
             if (!CoverName.Count().Equals(0))
             {
                 Methods.Tile CurrentTile = Methods.FindTile(Coordinates[0], Coordinates[1], battleGrid);
@@ -129,8 +128,6 @@ namespace Main.Creatures
                 CurrentCover.RoomUsed -= Size;
                 CoverName = "";
                 CoverBonus = 0;
-
-                if (!CoverName.Count().Equals(0)) { Console.WriteLine("(behind cover: true)"); } else { Console.WriteLine("(behind cover: false)"); }    // temp
             }
 
             // roll to hit
@@ -143,7 +140,11 @@ namespace Main.Creatures
 
             if (RollToHit.Equals(20))
             {
-                Methods.Print("Attack Roll", RollToHit);
+                Console.WriteLine("Attack Roll: Natural 20");
+                Console.WriteLine();
+                Methods.Pause();
+                Methods.Pause();
+                Methods.Pause();
 
                 int damage = BestMelee.DamageCrit() + Methods.StatMod(WeaponStat(BestMelee));
                 Player.Damage += damage;
@@ -187,7 +188,11 @@ namespace Main.Creatures
 
                 if (RollToHit.Equals(20))
                 {
-                    Methods.Print("Attack Roll", RollToHit);
+                    Console.WriteLine("Attack Roll: Natural 20");
+                    Console.WriteLine();
+                    Methods.Pause();
+                    Methods.Pause();
+                    Methods.Pause();
 
                     int damage = BestRanged.DamageCrit() + Methods.StatMod(WeaponStat(BestRanged));
                     Player.Damage += damage;
@@ -293,11 +298,7 @@ namespace Main.Creatures
             }
 
             // check if grappled
-            if (!GrappledBy.Count.Equals(0))
-            {
-                Methods.Typewriter(string.Format("{0} is still grappled!", Name));
-                return;
-            }
+            if (!GrappledBy.Count.Equals(0)) { return; }
 
             // find available coordinates
             Dictionary<int, int> AvailableDirections = new Dictionary<int, int>();

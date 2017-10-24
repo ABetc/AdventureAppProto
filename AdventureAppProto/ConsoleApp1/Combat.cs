@@ -265,20 +265,21 @@ namespace Main
                 ChosenWeapon = WeaponsCarried[_playerChoice - 1];
 
                 // a ranged weapon can't be chosen unless all enemies are behind cover
-                if (!Enemies.Any(enemy => enemy.CoverName.Count().Equals(0)) && ChosenWeapon.Range > 0)
+                if (Enemies.Any(enemy => enemy.Coordinates.SequenceEqual(Player.Coordinates)) && ChosenWeapon.Range > 0)
                 {
-                    List<Creature> EnemiesOut = Enemies.Where(enemy => enemy.CoverName.Count().Equals(0)).ToList();
+                    List<Creature> GatherClose = Enemies.Where(enemy => enemy.Coordinates.SequenceEqual(Player.Coordinates)).ToList();
+                    List<Creature> EnemiesOut = GatherClose.Where(enemy => enemy.CoverName.Count().Equals(0)).ToList();
 
                     if (EnemiesOut.Count > 1)
                     {
                         List<string> EnemiesOut_Names = EnemiesOut.Select(enemy => enemy.Name).ToList();
 
-                        Methods.Typewriter(string.Format("The {0} can't be used while {1} and {2} are out in the open and " +
+                        Methods.Typewriter(string.Format("The {0} can't be used while {1} and {2} are in the open close by and " +
                             "about to attack!", ChosenWeapon.Name, Methods.ManyNames(EnemiesOut_Names), EnemiesOut_Names.Last()));
                     }
                     else
                     {
-                        Methods.Typewriter(string.Format("The {0} can't be used while {1} is out in open and about to attack!",
+                        Methods.Typewriter(string.Format("The {0} can't be used while {1} is in the open close by and about to attack!",
                             ChosenWeapon.Name, EnemiesOut.First().Name));
                     }
                 }
@@ -327,13 +328,9 @@ namespace Main
             {
                 Methods.Typewriter(string.Format("{0} makes an unwieldy strike on {1}!", Player.Name, Target.Name));
             }
-            else if (Player.CoverName.Count().Equals(0) && ChosenWeapon.Range < 1)
+            else if (Player.CoverName.Count().Equals(0) && ChosenWeapon.Range < 1 && !Target.CoverBonus.Equals(0))
             {
                 Methods.Typewriter(string.Format("{0} rushes forward to attack {1}!", Player.Name, Target.Name));
-            }
-            else if (Player.CoverName.Count().Equals(0) && ChosenWeapon.Range > 0)
-            {
-                Methods.Typewriter(string.Format("{0} takes aim at {1}!", Player.Name, Target.Name));
             }
             else if (!Player.CoverName.Count().Equals(0) && ChosenWeapon.Range < 1)
             {
@@ -343,7 +340,15 @@ namespace Main
             else if (!Player.CoverName.Count().Equals(0) && ChosenWeapon.Range > 0)
             {
                 Methods.Typewriter(string.Format("{0} leans out and takes aim at {1}!", Player.Name, Target.Name));
-            }            
+            }
+            else if (Player.CoverName.Count().Equals(0) && ChosenWeapon.Range > 0)
+            {
+                Methods.Typewriter(string.Format("{0} takes aim at {1}!", Player.Name, Target.Name));
+            }
+            else if (Player.CoverName.Count().Equals(0) && ChosenWeapon.Range < 1)
+            {
+                Methods.Typewriter(string.Format("{0} attacks {1}!", Player.Name, Target.Name));
+            }
 
             int RollToHit = Methods.RollD(20);
 
@@ -408,12 +413,15 @@ namespace Main
             {
                 Methods.Typewriter(string.Format("{0} is dead!", Target.Name));
 
-                // check if target was behind cover and adjust tile cover figures
-                if (!Target.CoverName.Equals(0))
+                // check if target was behind cover and adjust cover figures
+                if (!Target.CoverName.Count().Equals(0))
                 {
                     Methods.Tile TargetTile = Methods.FindTile(Target.Coordinates[0], Target.Coordinates[1], BattleGrid);
                     GameItems.Cover TargetCover = TargetTile.Cover.Where(cover => cover.Name.Equals(Target.CoverName, StringComparison.Ordinal)).First();
+
                     TargetCover.RoomUsed -= Target.Size;
+                    Target.CoverName = "";
+                    Target.CoverBonus = 0;
                 }
 
                 // add Target to EnemiesKilled list, remove from Enemies and GrappledBy lists
@@ -481,6 +489,17 @@ namespace Main
                 Target.GrappledBy.Add(Player.Name);
 
                 Methods.Typewriter(string.Format("{0} is grappled! ({1} vs {2})", Target.Name, RollToGrapple, StrengthContest));
+
+                // check if target was behind cover and adjust cover figures
+                if (!Target.CoverName.Count().Equals(0))
+                {
+                    Methods.Tile TargetTile = Methods.FindTile(Target.Coordinates[0], Target.Coordinates[1], BattleGrid);
+                    GameItems.Cover TargetCover = TargetTile.Cover.Where(cover => cover.Name.Equals(Target.CoverName, StringComparison.Ordinal)).First();
+
+                    TargetCover.RoomUsed -= Target.Size;
+                    Target.CoverName = "";
+                    Target.CoverBonus = 0;
+                }
 
                 TurnActions += 2;
                 return;
@@ -556,7 +575,7 @@ namespace Main
             // check if grappled or grappling
             if (!Player.GrappledBy.Count.Equals(0))
             {
-                Methods.Typewriter(string.Format("{0} is still caught and can't move!", Player.Name));
+                Methods.Typewriter(string.Format("{0} is caught and can't move!", Player.Name));
                 return;
             }
 
@@ -754,13 +773,6 @@ namespace Main
             {
                 Enemies[x].Fight(Enemies, EnemiesEscaped, BattleGrid);
             }
-
-            /*
-            foreach (Creature enemy in Enemies)
-            {
-                enemy.Fight(Enemies, EnemiesEscaped, BattleGrid);
-            }
-            */
 
             Player.CheckHealth();
             PlayerTurn();
