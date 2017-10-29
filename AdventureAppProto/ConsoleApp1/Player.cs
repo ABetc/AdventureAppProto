@@ -16,8 +16,8 @@ namespace Main
         public static int Damage;
         public static int ArmorClass = 14;
         public static int Proficiency = 2;
-        public static int STR = 80;      // originally 8
-        public static int DEX = 14;
+        public static int STR = 8;
+        public static int DEX = 140;        // originally 14
         public static int CON = 12;
         public static int INT = 14;
         public static int WIS = 10;
@@ -41,24 +41,20 @@ namespace Main
             CurrentLocation = World.FindLocation(World.GoblinAmbush_RoadWest_ID);
             PreviousLocation = World.FindLocation(World.GoblinAmbush_Woods_ID);
 
-            Inventory.Add(new GameItems.Weapon(
-                GameItems.Weapon_ShortSword.Name,
-                GameItems.Weapon_ShortSword.Description,
-                GameItems.Weapon_ShortSword.StrengthBased,
-                GameItems.Weapon_ShortSword.DamageDie,
-                GameItems.Weapon_ShortSword.NumberOfDice,
-                GameItems.Weapon_ShortSword.Range,
-                GameItems.Weapon_ShortSword.Value));
+            Inventory.Add(Methods.MakeItem(GameItems.Weapon_ShortSword));
+            Inventory.Add(Methods.MakeItem(GameItems.Weapon_HandXBow));
+        }
 
-            Inventory.Add(new GameItems.Weapon(
-                GameItems.Weapon_HandXBow.Name,
-                GameItems.Weapon_HandXBow.Description,
-                GameItems.Weapon_HandXBow.StrengthBased,
-                GameItems.Weapon_HandXBow.DamageDie,
-                GameItems.Weapon_HandXBow.NumberOfDice,
-                GameItems.Weapon_HandXBow.Range,
-                GameItems.Weapon_HandXBow.Value,
-                GameItems.Weapon_HandXBow.Ammo));
+        public static void TakeItem(GameItems.Item item)
+        {
+            Inventory.Add(item);
+            Methods.Pause();
+            Methods.Pause();
+            Methods.Pause();
+            Methods.Typewriter("(Picked up " + item.Name + ")");
+            Methods.Pause();
+            Methods.Pause();
+            Methods.Pause();
         }
 
         public static int WeaponStat(GameItems.Item weapon)
@@ -85,17 +81,5 @@ namespace Main
         }
 
         public static bool IsAlive() { return Damage < HitPoints; }
-
-        public static void TakeItem(GameItems.Item item)
-        {
-            Inventory.Add(item);
-            Methods.Pause();
-            Methods.Pause();
-            Methods.Pause();
-            Methods.Typewriter("(Picked up " + item.Name + ")");
-            Methods.Pause();
-            Methods.Pause();
-            Methods.Pause();
-        }
     }
 }

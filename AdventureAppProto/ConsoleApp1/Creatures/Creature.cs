@@ -9,6 +9,7 @@ namespace Main.Creatures
     public abstract class Creature
     {
         public abstract string Name { get; set; }
+        public abstract string Type { get; set; }
         public abstract int HitPoints { get; set; }
         public abstract int Damage { get; set; }
         public abstract int Size { get; set; }

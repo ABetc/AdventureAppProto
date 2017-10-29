@@ -44,7 +44,7 @@ namespace Main.Locations
                 // if returning to location
                 else
                 {
-                    Methods.Typewriter("The low ditch still has some flattened areas from the previous stealth appraoch");
+                    Methods.Typewriter("The low ditch still has some flattened areas from the previous stealth approach.");
                 }
             }
 
@@ -86,8 +86,8 @@ namespace Main.Locations
             else
             {
                 Methods.Typewriter(string.Format("The view of the road ahead disappears as the shurbbery closes in on both sides of the " +
-                        "ditch. It seems painfully slow, but soon {0} makes the crawl further up the road without seeming to attract " +
-                        "any attention", Player.Name));
+                        "ditch. It seems painfully slow, but soon {0} manages to crawl further up the road without appearing to have attracted " +
+                        "any attention.", Player.Name));
             }
 
             if (Player.PreviousLocation.LocationID != LocationID)
@@ -151,30 +151,69 @@ namespace Main.Locations
 
         private void GoblinFight_Road()
         {
-            Methods.Typewriter("(goblin fight)");
-            GoblinAmbush.Note_FoughtGoblins = true;
-            GoblinAmbush.Note_RoadFight = true;
-            Methods.Enter();
-
             // raise travel counts since the location is changing abruptly
             Player.TravelCount++;
             Player.CurrentLocation.LocationVisitCount++;
             Player.CurrentLocation.LastVisitedLocation = Player.TravelCount;
             Player.PreviousLocation = Player.CurrentLocation;
 
-            // since this location change occurs during the opening text, display the new location's opening text
+            // abrupt location change
             Player.CurrentLocation = World.FindLocation(World.GoblinAmbush_DownedHorses_ID);
+
+            Methods.Typewriter("(goblin fight)");       // temp
+
+            GoblinAmbush.Note_FoughtGoblins = true;
+            GoblinAmbush.Note_RoadFight = true;
+
+            // since this location change occurs during the opening text, display the new location's opening text
             Player.CurrentLocation.OpeningText();
         }
 
         private void GoblinFight_Camp()
         {
-            Methods.Typewriter("(goblin fight)");
+            // abrupt location change
+            Player.CurrentLocation = World.FindLocation(World.GoblinAmbush_PathRoad_ID);
+
+            Methods.Typewriter("(goblin fight)");       // temp
+
+            // grid design
+            var GridSize = Tuple.Create(2, 2);
+
+            Dictionary<int, string> TileDescriptions = new Dictionary<int, string>()
+            {
+                { 1, "a fallen tree" },
+                { 2, "a large boulder" },
+                { 3, "a large tree" },
+                { 4, "a small tree" }
+            };
+
+            Dictionary<int, List<GameItems.Item>> TileCover = new Dictionary<int, List<GameItems.Item>>()
+            {
+                { 1, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_FallenTree),
+                                                Methods.MakeItem(GameItems.Cover_ClusterSmallTrees) } },
+                { 2, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeBoulder) } },
+                { 3, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree) } },
+                { 4, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_SmallTree) } }
+            };
+
+            var BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);
+
+            // combatants and positions
+            List<Creatures.Creature> Enemies = new List<Creatures.Creature>
+            {
+                new Creatures.Goblin("Elf Ears"),
+                new Creatures.Goblin("Pot Belly"),
+                new Creatures.Goblin("Buck Tooth"),
+                new Creatures.Goblin("Rat Breath"),
+                new Creatures.Goblin("Hang Nail")
+            };
+
+            Player.Coordinates = new List<int> { 1, 2 };
+
+            Fight GoblinFight = new Fight(BattleGrid, Enemies, "2x2");
+
             GoblinAmbush.Note_FoughtGoblins = true;
             GoblinAmbush.Note_CampFight = true;
-            Methods.Enter();
-
-            Player.CurrentLocation = World.FindLocation(World.GoblinAmbush_PathRoad_ID);
         }
     }
 }

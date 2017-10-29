@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Combat.cs" />
+    <Compile Include="Fight.cs" />
     <Compile Include="Creatures\Creature.cs" />
     <Compile Include="Creatures\Goblin.cs" />
     <Compile Include="GameItems.cs" />

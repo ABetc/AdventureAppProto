@@ -351,50 +351,6 @@ namespace Main.Locations
         {
             Methods.Typewriter("(goblin fight)");
 
-            var GridSize = Tuple.Create(2, 2);
-
-            Dictionary<int, string> TileDescriptions = new Dictionary<int, string>()
-            {
-                { 1, "a fallen tree" },
-                { 2, "a large boulder" },
-                { 3, "a large tree" },
-                { 4, "a small tree" }
-            };
-
-            Dictionary<int, List<GameItems.Cover>> TileCover = new Dictionary<int, List<GameItems.Cover>>()
-            {
-                { 1, new List<GameItems.Cover> { new GameItems.Cover(   GameItems.Cover_FallenTree.Name,
-                                                                        GameItems.Cover_FallenTree.Room,
-                                                                        GameItems.Cover_FallenTree.CoverBonus),
-                                                 new GameItems.Cover(   GameItems.Cover_ClusterSmallTrees.Name,
-                                                                        GameItems.Cover_ClusterSmallTrees.Room,
-                                                                        GameItems.Cover_ClusterSmallTrees.CoverBonus) } },
-                { 2, new List<GameItems.Cover> { new GameItems.Cover(   GameItems.Cover_LargeBoulder.Name,
-                                                                        GameItems.Cover_LargeBoulder.Room,
-                                                                        GameItems.Cover_LargeBoulder.CoverBonus) } },
-                { 3, new List<GameItems.Cover> { new GameItems.Cover(   GameItems.Cover_LargeTree.Name,
-                                                                        GameItems.Cover_LargeTree.Room,
-                                                                        GameItems.Cover_LargeTree.CoverBonus) } },
-                { 4, new List<GameItems.Cover> { new GameItems.Cover(   GameItems.Cover_SmallTree.Name,
-                                                                        GameItems.Cover_SmallTree.Room,
-                                                                        GameItems.Cover_SmallTree.CoverBonus) } }
-            };
-
-            var BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);
-
-            List<Creatures.Creature> Enemies = new List<Creatures.Creature>
-            {
-                new Creatures.Goblin("Elf Ears"),
-                new Creatures.Goblin("Pot Belly"),
-                new Creatures.Goblin("Buck Tooth"),
-                new Creatures.Goblin("Rat Breath"),
-                new Creatures.Goblin("Hang Nail")
-            };
-
-            Player.Coordinates = new List<int> { 1, 2 };
-
-            Combat GoblinFight = new Combat(BattleGrid, Enemies, "2x2");
-
             GoblinAmbush.Note_FoughtGoblins = true;
             GoblinAmbush.Note_WoodsFight = true;
         }

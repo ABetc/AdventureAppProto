@@ -53,7 +53,7 @@ namespace Main.Locations
                 }
                 else
                 {
-                    Methods.Typewriter("The horses' stink is pungent and a cloud of flies is starting to form.");
+                    Methods.Typewriter("The horses' stink is pungent and a cloud of flies has formed.");
                 }
 
                 // check if already fought goblins
@@ -62,7 +62,7 @@ namespace Main.Locations
                     Methods.Typewriter(string.Format("Suddenly there is a shriek from the woods to the north, and from some hidden spot " +
                         "behind the trees leap a group of five goblins! A few rush forward in different directions and begin to " +
                         "surroud {0} while a couple others remain behind and nock arrows to small goblinoid bows.", Player.Name));
-                    Methods.Typewriter("OHhh... Human! ", "red");
+                    Methods.Typewriter("OHhh... Human!", "red");
                     Methods.Typewriter(string.Format("The lead goblin eyes {0} gleefully while licking its lips", Player.Name));
 
                     GoblinFight();
@@ -127,39 +127,82 @@ namespace Main.Locations
 
         private void GoblinFight()
         {
-            Methods.Typewriter("(goblin fight)");
+            Methods.Typewriter("(goblin fight)");       // temp
 
-            var GridSize = Tuple.Create(2, 2);
+            // grid design
+            var GridSize = Tuple.Create(4, 3);
 
             Dictionary<int, string> TileDescriptions = new Dictionary<int, string>()
             {
-                { 1, "a fallen tree" },
-                { 2, "a large boulder" },
-                { 3, "a large tree" },
-                { 4, "a small tree" }
+                { 1, "the forest (1,1)" },
+                { 2, "the forest (2,1)" },
+                { 3, "the forest (3,1)" },
+                { 4, "the forest (4,1)" },
+                { 5, "the west end of the road (1,2)" },
+                { 6, "the middle of the road (2,2)" },
+                { 7, "the downed horses (3,2)" },
+                { 8, "the estern end of the road (4,2)" },
+                { 9, "the forest (1,3)" },
+                { 10, "the forest (2,3)" },
+                { 11, "the forest (3,3)" },
+                { 12, "the forest (4,3)" }
+            };            
+
+            /*
+            Dictionary<int, string> TileDescriptions = new Dictionary<int, string>()
+            {
+                { 1, "(1,1)" },
+                { 2, "(2,1)" },
+                { 3, "(3,1)" },
+                { 4, "(4,1)" },
+                { 5, "(1,2)" },
+                { 6, "(2,2)" },
+                { 7, "(3,2)" },
+                { 8, "(4,2)" },
+                { 9, "(1,3)" },
+                { 10, "(2,3)" },
+                { 11, "(3,3)" },
+                { 12, "(4,3)" }
+            };
+            */
+
+            Dictionary<int, List<GameItems.Item>> TileCover = new Dictionary<int, List<GameItems.Item>>()
+            {
+                { 1, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterLargeTrees) } },
+                { 2, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeBoulder),
+                                                Methods.MakeItem(GameItems.Cover_SmallTree) } },
+                { 3, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree),
+                                                Methods.MakeItem(GameItems.Cover_SmallTree),
+                                                Methods.MakeItem(GameItems.Cover_SmallBoulder) } },
+                { 4, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree),
+                                                Methods.MakeItem(GameItems.Cover_ClusterSmallTrees) } },
+                { 5, new List<GameItems.Item>() },
+                { 6, new List<GameItems.Item>() },
+                { 7, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_DownedHorses) } },
+                { 8, new List<GameItems.Item>() },
+                { 9, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterSmallTrees),
+                                                Methods.MakeItem(GameItems.Cover_MediumBoulder) } },
+                { 10, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_FallenTree),
+                                                 Methods.MakeItem(GameItems.Cover_SmallTree) } },
+                { 11, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterLargeTrees) } },
+                { 12, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_SmallBoulder),
+                                                 Methods.MakeItem(GameItems.Cover_MediumBoulder),
+                                                 Methods.MakeItem(GameItems.Cover_SmallTree) } },
             };
 
-            Dictionary<int, List<GameItems.Cover>> TileCover = new Dictionary<int, List<GameItems.Cover>>()
+            /*
+            // check for tool cart
+            if (LocationInventory.Exists(item => item.Name.Equals(GameItems.QItems_ToolCart.Name)))
             {
-                { 1, new List<GameItems.Cover> { new GameItems.Cover(   GameItems.Cover_FallenTree.Name,
-                                                                        GameItems.Cover_FallenTree.Room,
-                                                                        GameItems.Cover_FallenTree.CoverBonus),
-                                                 new GameItems.Cover(   GameItems.Cover_ClusterSmallTrees.Name,
-                                                                        GameItems.Cover_ClusterSmallTrees.Room,
-                                                                        GameItems.Cover_ClusterSmallTrees.CoverBonus) } },
-                { 2, new List<GameItems.Cover> { new GameItems.Cover(   GameItems.Cover_LargeBoulder.Name,
-                                                                        GameItems.Cover_LargeBoulder.Room,
-                                                                        GameItems.Cover_LargeBoulder.CoverBonus) } },
-                { 3, new List<GameItems.Cover> { new GameItems.Cover(   GameItems.Cover_LargeTree.Name,
-                                                                        GameItems.Cover_LargeTree.Room,
-                                                                        GameItems.Cover_LargeTree.CoverBonus) } },
-                { 4, new List<GameItems.Cover> { new GameItems.Cover(   GameItems.Cover_SmallTree.Name,
-                                                                        GameItems.Cover_SmallTree.Room,
-                                                                        GameItems.Cover_SmallTree.CoverBonus) } }
-            };
+                TileDescriptions[5] = "the tool cart (1,2)";
+                TileCover[5].Add(Methods.MakeItem(GameItems.Cover_ToolCart));
+            }
+            */
+
 
             var BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);
 
+            // combatants and positions
             List<Creatures.Creature> Enemies = new List<Creatures.Creature>
             {
                 new Creatures.Goblin("Elf Ears"),
@@ -171,11 +214,10 @@ namespace Main.Locations
 
             Player.Coordinates = new List<int> { 1, 2 };
 
-            Combat GoblinFight = new Combat(BattleGrid, Enemies, "2x2");
+            Fight GoblinFight = new Fight(BattleGrid, Enemies, "4x3");
 
             GoblinAmbush.Note_FoughtGoblins = true;
             GoblinAmbush.Note_RoadFight = true;
-            Methods.Enter();
         }
 
         private void SearchArea()
@@ -184,8 +226,8 @@ namespace Main.Locations
             {
                 Dictionary<int, string> _choices = new Dictionary<int, string>();
 
-                _choices[1] = "Search the goblins for any items of interest";
-                _choices[2] = "Examine the horses and the ambush scene";
+                _choices[1] = "Search for loot or other items";
+                _choices[2] = "Examine the horses";
 
                 Methods.PrintOptions(_choices);
                 int _playerChoice = Methods.GetPlayerChoice(_choices.Count);
@@ -193,7 +235,7 @@ namespace Main.Locations
                 switch (_playerChoice)
                 {
                     case 1:
-                        SearchGoblins();
+                        SearchForItems();
                         return;
 
                     case 2:
@@ -212,7 +254,6 @@ namespace Main.Locations
                 Quests.GundrenKidnapped_TwoKidnapped = true;
 
                 Dictionary<int, string> _choices = new Dictionary<int, string>();
-                Dictionary<int, int> _results = new Dictionary<int, int>();
 
                 _choices[1] = "Take the tattered note";
                 _choices[2] = "Leave the item";
@@ -232,12 +273,11 @@ namespace Main.Locations
                         break;
                 }
             }
-
-            if (GoblinAmbush.Skill_Investigation > 10 && !Quests.GundrenKidnapped_TwoKidnapped)
+            else if (GoblinAmbush.Skill_Investigation > 10 && !Quests.GundrenKidnapped_TwoKidnapped)
             {
-                Methods.Typewriter("A mercenary company sigil is on the one saddles likely carrying a human. There " +
+                Methods.Typewriter("A mercenary company sigil is on the one saddle that likely carryied a human. There " +
                     "are also some conspicuous drag marks leading away from the scene and into the woods. As the size " +
-                    "of the saddles also suggest, the victims seem to have been an adult human - or similar in size - " +
+                    "of the saddles also suggest, the victims seem to have been an adult human--or similar in size--" +
                     "and a dwarf.");
                 Methods.Typewriter(string.Format("{0} takes a deep breath and shakes his head. If these are not the " +
                     "travelling horses of Gundren and his hired bodyguard, the coincidence would be very surprising.",
@@ -254,14 +294,59 @@ namespace Main.Locations
             else
             {
                 Methods.Typewriter("The site is filled with sights and smells of death and rot. Even standing nearby " +
-                    "is beginning to become nigh on unbearable. Soon only the flies will be able to examine the scene.");
-            }
+                    "is beginning to become nigh unbearable. Soon only the flies will be able to examine the scene.");
+            }            
         }
 
-        private void SearchGoblins()
+        private void SearchForItems()
         {
-            Console.WriteLine("(Search goblins)");
-            Methods.Enter();
+            List<GameItems.Item> LootFound = new List<GameItems.Item>();
+
+            foreach (GameItems.Item item in LocationInventory)
+            {
+                if (!LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)))
+                {
+                    LootFound.Add(item);
+                }
+                else if (LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)))
+                {
+                    LootFound.Find(loot => loot.Name.Equals(item.Name)).Amount += 1;
+                }
+            }
+
+            while (!LootFound.Count.Equals(0))
+            {
+                int lootNum = 1;
+                foreach (GameItems.Item loot in LootFound)
+                {
+                    Console.WriteLine(" " + lootNum + " - " + loot.Name + " (" + loot.Amount + ")");
+                    lootNum++;
+                }
+                Console.WriteLine(" " + lootNum + " -" + " (done)");
+
+                int PlayerChoice = Methods.GetPlayerChoice(LootFound.Count + 1);
+
+                if (PlayerChoice.Equals(LootFound.Count + 1)) { LootFound.Clear(); return; }
+                else
+                {
+                    GameItems.Item TargetItem = LootFound[PlayerChoice - 1];
+                    int NumOwned = 1;
+
+                    if (TargetItem.Amount > 1) { TargetItem.Amount -= 1; } else { LootFound.Remove(TargetItem); }
+
+                    if (Player.Inventory.Exists(item => item.Name.Equals(TargetItem.Name)))
+                    {
+                        Player.Inventory.Find(item => item.Name.Equals(TargetItem.Name)).Amount += 1;
+                        NumOwned = Player.Inventory.Find(item => item.Name.Equals(TargetItem.Name)).Amount;
+                    }
+                    else
+                    {
+                        Player.Inventory.Add(Methods.MakeItem(TargetItem));
+                    }
+
+                    Methods.Typewriter(string.Format("{0} taken ({1} owned)", TargetItem.Name, NumOwned));
+                }
+            }
         }
 
         private void MoveHorses()
@@ -316,7 +401,13 @@ namespace Main.Locations
                         Methods.Typewriter(string.Format("{0} tries to comfort the animal and they make it past " +
                             "the aftermath of the amubsh and back onto open road.", Player.Name));
 
+                        //move tool cart to next location
+                        GameItems.Item _toolcart = LocationInventory.Find(item => item.Name.Equals(GameItems.QItems_ToolCart.Name));
+                        LocationInventory.Remove(_toolcart);
+                        World.FindLocation(World.GoblinAmbush_RoadEast_ID).LocationInventory.Add(_toolcart);
+
                         Player.CurrentLocation = World.FindLocation(World.GoblinAmbush_RoadEast_ID);
+                        GoblinAmbush.ResetSkills();
                     }
                     break;
 

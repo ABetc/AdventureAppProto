@@ -9,6 +9,7 @@ namespace Main.Creatures
     public class Goblin : Creature
     {
         public override string Name { get; set; }
+        public override string Type { get; set; }
         public override int HitPoints { get; set; }
         public override int Damage { get; set; }
         public override int Size { get; set; }
@@ -39,6 +40,7 @@ namespace Main.Creatures
             Coordinates.Add(coordX);
             Coordinates.Add(coordY);
 
+            Type = "goblin";
             HitPoints = Methods.RollD(6, 2);
             Size = (int)Sizes_Enum.Small;
             ArmorClass = 12;
@@ -51,16 +53,17 @@ namespace Main.Creatures
             CoverName = "";
             CoverBonus = 0;
 
-            Inventory = new List<GameItems.Item>();
-            Inventory.Add(new GameItems.Weapon(
+            Inventory = new List<GameItems.Item>
+            {
+                new GameItems.Weapon(
                 GameItems.Weapon_GoblinBlade.Name,
                 GameItems.Weapon_GoblinBlade.Description,
                 GameItems.Weapon_GoblinBlade.StrengthBased,
                 GameItems.Weapon_GoblinBlade.DamageDie,
                 GameItems.Weapon_GoblinBlade.NumberOfDice,
                 GameItems.Weapon_GoblinBlade.Range,
-                GameItems.Weapon_GoblinBlade.Value));
-            Inventory.Add(new GameItems.Weapon(
+                GameItems.Weapon_GoblinBlade.Value),
+                new GameItems.Weapon(
                 GameItems.Weapon_Javelin.Name,
                 GameItems.Weapon_Javelin.Description,
                 GameItems.Weapon_Javelin.StrengthBased,
@@ -68,15 +71,16 @@ namespace Main.Creatures
                 GameItems.Weapon_Javelin.NumberOfDice,
                 GameItems.Weapon_Javelin.Range,
                 GameItems.Weapon_Javelin.Value,
-                GameItems.Weapon_Javelin.Ammo));
+                GameItems.Weapon_Javelin.Ammo)
+            };
 
             RollInitiative();
             Initiative = PrivateInititative;
         }
 
-        private void RollInitiative() { PrivateInititative = Methods.RollStat(DEX); }
-
         public override bool IsAlive() { return Damage < HitPoints; }
+
+        private void RollInitiative() { PrivateInititative = Methods.RollStat(DEX); }
 
         private int WeaponStat(GameItems.Item weapon)
         {
@@ -123,7 +127,7 @@ namespace Main.Creatures
             if (!CoverName.Count().Equals(0))
             {
                 Methods.Tile CurrentTile = Methods.FindTile(Coordinates[0], Coordinates[1], battleGrid);
-                GameItems.Cover CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
+                GameItems.Item CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
 
                 CurrentCover.RoomUsed -= Size;
                 CoverName = "";
@@ -132,7 +136,7 @@ namespace Main.Creatures
 
             // roll to hit
             GameItems.Item BestMelee = Inventory.FindAll(item => item.GetType().Equals(typeof(GameItems.Weapon))).Where(
-                item => item.Range.Equals(0)).OrderByDescending(item => item.DamageDie).First();
+                item => item.Range.Equals(0)).OrderByDescending(item => item.DamageDie * item.NumberOfDice).First();
 
             Methods.Typewriter(string.Format("{0} attacks with a {1}!", Name, BestMelee.Name));
 
@@ -175,7 +179,7 @@ namespace Main.Creatures
         private void Ranged()
         {
             GameItems.Item BestRanged = Inventory.FindAll(item => item.GetType().Equals(typeof(GameItems.Weapon))).Where(
-                item => !item.Range.Equals(0)).OrderByDescending(item => item.DamageDie).First();
+                item => !item.Range.Equals(0)).OrderByDescending(item => item.DamageDie * item.NumberOfDice).First();
 
             // check if in range
             if (BestRanged.Range >= Math.Abs(Player.Coordinates[0] - Coordinates[0]) &&
@@ -242,7 +246,7 @@ namespace Main.Creatures
             if (!CoverName.Count().Equals(0))
             {
                 Methods.Tile CurrentTile = Methods.FindTile(Coordinates[0], Coordinates[1], battleGrid);
-                GameItems.Cover CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
+                GameItems.Item CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
 
                 CurrentCover.RoomUsed -= Size;
                 CoverName = "";
@@ -332,7 +336,7 @@ namespace Main.Creatures
                 // adjust cover values at location before change
                 if (!CoverName.Count().Equals(0))
                 {
-                    GameItems.Cover CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
+                    GameItems.Item CurrentCover = CurrentTile.Cover.Where(cover => cover.Name.Equals(CoverName)).First();
 
                     CurrentCover.RoomUsed -= Size;
                     CoverName = "";
@@ -362,8 +366,10 @@ namespace Main.Creatures
                 //update current player tile and check for new cover
                 CurrentTile = Methods.FindTile(Coordinates[0], Coordinates[1], battleGrid);
 
-                List<GameItems.Cover> GatherCover = CurrentTile.Cover.Where(cover => cover.RoomUsed < cover.Room &&
-                !cover.Name.Equals(Player.CoverName)).ToList();
+                // if (!CurrentTile.Cover.Count.Equals(0)) { }
+
+                List<GameItems.Item> GatherCover = CurrentTile.Cover.Where(cover => cover.RoomUsed < cover.Room &&
+                    !cover.Name.Equals(Player.CoverName)).ToList();
 
                 if (!GatherCover.Count.Equals(0))
                 {

@@ -14,6 +14,50 @@ namespace Main
             Rnd = new Random();
         }
 
+        public static GameItems.Item MakeItem(GameItems.Item item)
+        {
+            GameItems.Item newItem = null;
+
+            if (item.GetType().Equals(typeof(GameItems.QuestItem)))
+            {
+                newItem = new GameItems.QuestItem(  item.Name,
+                                                    item.Description);
+            }
+            else if (item.GetType().Equals(typeof(GameItems.Weapon)))
+            {
+                newItem = new GameItems.Weapon( item.Name,
+                                                item.Description,
+                                                item.StrengthBased,
+                                                item.DamageDie,
+                                                item.NumberOfDice,
+                                                item.Range,
+                                                item.Value,
+                                                item.Ammo);
+            }
+            else if (item.GetType().Equals(typeof(GameItems.Potion)))
+            {
+                return newItem = new GameItems.Potion(  item.Name,
+                                                        item.Description,
+                                                        item.Value,
+                                                        item.HealDieType,
+                                                        item.NumberOfDice,
+                                                        item.HealBaseNum);
+            }
+            else if (item.GetType().Equals(typeof(GameItems.Trinket)))
+            {
+                return newItem = new GameItems.Trinket( item.Name,
+                                                        item.Description,
+                                                        item.Value);
+            }
+            else if (item.GetType().Equals(typeof(GameItems.Cover)))
+            {
+                return newItem = new GameItems.Cover(   item.Name,
+                                                        item.Room,
+                                                        item.CoverBonus);
+            }
+            return newItem;
+        }
+
         public static string ManyNames(List<string> list)
         {
             string manyNames = string.Join(", ", list.GetRange(0, list.Count - 1));
@@ -35,7 +79,7 @@ namespace Main
             if (coordX < 0 || coordY < 0) { return false; }
             try
             {
-                Tile foundTile = grid[coordX - 1][coordY - 1];
+                Tile foundTile = grid[coordY - 1][coordX - 1];
                 return true;
             }
             catch (Exception)
@@ -49,7 +93,7 @@ namespace Main
             if (coordX < 0 || coordY < 0) { return null; }
             try
             {
-                Tile foundTile = grid[coordX - 1][coordY - 1];
+                Tile foundTile = grid[coordY - 1][coordX - 1];
                 return foundTile;
             }
             catch (Exception)
@@ -63,9 +107,9 @@ namespace Main
             public int CoordX { get; set; }
             public int CoordY { get; set; }
             public string Description { get; set; }
-            public List<GameItems.Cover> Cover { get; set; }
+            public List<GameItems.Item> Cover { get; set; }
 
-            public Tile(int coordX, int coordY, string desc, List<GameItems.Cover> cover)
+            public Tile(int coordX, int coordY, string desc, List<GameItems.Item> cover)
             {
                 CoordX = coordX;
                 CoordY = coordY;
@@ -75,19 +119,20 @@ namespace Main
         }
 
         public static List<List<Tile>> MakeGrid(Tuple<int, int> gridSize,
-            Dictionary<int, string> desc, Dictionary<int, List<GameItems.Cover>> cover)
+            Dictionary<int, string> desc, Dictionary<int, List<GameItems.Item>> cover)
         {
             List<List<Tile>> Grid = new List<List<Tile>>();
             int TileNum = 1;
 
-            for (int X = 1; X <= gridSize.Item1; X++)
+            for (int Y = 1; Y <= gridSize.Item2; Y++)
             {
                 List<Tile> Row = new List<Tile>();
 
-                for (int Y = 1; Y <= gridSize.Item2; Y++)
+                for (int X = 1; X <= gridSize.Item1; X++)
                 {
                     Tile newTile = new Tile(X, Y, desc[TileNum], cover[TileNum]);
                     Row.Add(newTile);
+
                     TileNum++;
                 }
 

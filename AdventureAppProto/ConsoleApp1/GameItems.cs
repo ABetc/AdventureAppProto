@@ -8,75 +8,6 @@ namespace Main
 {
     public class GameItems
     {
-        // QUEST ITEMS:
-        public static readonly Item QItems_ToolCart = new QuestItem(
-            "tool cart",
-            "Loaned for the shipment of Gundren's tools to Phandelin, the cart is packed full of excavation gear and supplies.");
-
-        public static readonly Item QItems_TatteredNote = new QuestItem(
-            "tattered note",
-            "Pieced together from the goblin ambush scene, the note is addressed to the mayor of Phandelin and signed by Gundren.");
-
-        // WEAPONS:
-        public static readonly Item Weapon_HandXBow = new Weapon(
-            "hand crossbow",
-            "A lightweight crossbow made for one handed use.",
-            false, 6, 1, 1, 50,
-            "bolt");
-
-        public static readonly Item Weapon_Javelin = new Weapon(
-            "javelin",
-            "A thin spear made for throwing.",
-            false, 6, 1, 1, 5,
-            "javelin");
-
-        public static readonly Item Weapon_ShortSword = new Weapon(
-            "shortsword",
-            "A standard oversized knife.",
-            false, 6, 1, 0, 10);
-
-        public static readonly Item Weapon_GoblinBlade = new Weapon(
-            "goblin blade",
-            "A crude shank with a sharpened edge.",
-            false, 4, 1, 0, 1);
-
-        //POTIONS:
-        public static readonly Item Potion_BasicHealing = new Potion(
-            "healing potion",
-            "A small vial of red liquid more healing wounds.",
-            50, 6, 2, 4);
-
-        //TRINKETS:
-        public static readonly Item Trinket_GoblinDice = new Trinket(
-            "goblin dice",
-            "Small pieces of carved bone with unknown markings on various sides.",
-            5);
-
-        //COVER: 
-        public static readonly Item Cover_FallenTree = new Cover(
-            "fallen tree",
-            8, 4);
-
-        public static readonly Item Cover_LargeBoulder = new Cover(
-            "large boulder",
-            6, 6);
-
-        public static readonly Item Cover_SmallBoulder = new Cover(
-            "small boulder",
-            3, 2);
-
-        public static readonly Item Cover_LargeTree = new Cover(
-            "large tree",
-            4, 4);
-
-        public static readonly Item Cover_SmallTree = new Cover(
-            "small tree",
-            3, 2);
-
-        public static readonly Item Cover_ClusterSmallTrees = new Cover(
-            "cluster of small trees",
-            6, 4);
-
         // BASE CLASSES:
         public class Item
         {
@@ -193,5 +124,90 @@ namespace Main
                 CoverBonus = coverBonus;
             }
         }
+
+        // QUEST ITEMS:
+        public static readonly Item QItems_ToolCart = new QuestItem(
+            "tool cart",
+            "Loaned for the shipment of Gundren's tools to Phandelin, the cart is packed full of excavation gear and supplies.");
+
+        public static readonly Item QItems_TatteredNote = new QuestItem(
+            "tattered note",
+            "Pieced together from the goblin ambush scene, the note is addressed to the mayor of Phandelin and signed by Gundren.");
+
+        // WEAPONS:
+        public static readonly Item Weapon_HandXBow = new Weapon(
+            "hand crossbow",
+            "A lightweight crossbow made for one handed use.",
+            false, 6, 1, 1, 50,
+            "bolt");
+
+        public static readonly Item Weapon_Javelin = new Weapon(
+            "javelin",
+            "A thin spear made for throwing.",
+            false, 6, 1, 1, 5,
+            "javelin");
+
+        public static readonly Item Weapon_ShortSword = new Weapon(
+            "shortsword",
+            "A standard oversized knife.",
+            false, 6, 1, 0, 10);
+
+        public static readonly Item Weapon_GoblinBlade = new Weapon(
+            "goblin blade",
+            "A crude shank with a sharpened edge.",
+            false, 4, 1, 0, 1);
+
+        //POTIONS:
+        public static readonly Item Potion_BasicHealing = new Potion(
+            "healing potion",
+            "A small vial of red liquid more healing wounds.",
+            50, 6, 2, 4);
+
+        //TRINKETS:
+        public static readonly Item Trinket_GoblinDice = new Trinket(
+            "goblin dice",
+            "Small pieces of carved bone with unknown markings on various sides.",
+            5);
+
+        //COVER: 
+        public static readonly Item Cover_FallenTree = new Cover(
+            "fallen tree",
+            8, 4);
+
+        public static readonly Item Cover_LargeBoulder = new Cover(
+            "large boulder",
+            6, 6);
+
+        public static readonly Item Cover_MediumBoulder = new Cover(
+            "large boulder",
+            4, 4);
+
+        public static readonly Item Cover_SmallBoulder = new Cover(
+            "small boulder",
+            3, 2);
+
+        public static readonly Item Cover_LargeTree = new Cover(
+            "large tree",
+            4, 4);
+
+        public static readonly Item Cover_SmallTree = new Cover(
+            "small tree",
+            3, 2);
+
+        public static readonly Item Cover_ClusterLargeTrees = new Cover(
+            "cluster of large trees",
+            8, 6);
+
+        public static readonly Item Cover_ClusterSmallTrees = new Cover(
+            "cluster of small trees",
+            6, 4);
+
+        public static readonly Item Cover_DownedHorses = new Cover(
+            "downed horses",
+            4, 2);
+
+        public static readonly Item Cover_ToolCart = new Cover(
+            "tool cart",
+            6, 4);
     }
 }

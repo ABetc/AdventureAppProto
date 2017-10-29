@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Main.Creatures;
+using Main.Locations;
 
 namespace Main
 {
-    class Combat
+    class Fight
     {
         private List<List<Methods.Tile>> BattleGrid;
         private List<Creature> Enemies;
@@ -42,7 +43,7 @@ namespace Main
             EndTurn
         }
 
-        public Combat(List<List<Methods.Tile>> grid, List<Creature> enemies, string gridDimenstions, int surpriseBonus = 0, bool parley = false)
+        public Fight(List<List<Methods.Tile>> grid, List<Creature> enemies, string gridDimenstions, int surpriseBonus = 0, bool parley = false)
         {
             BattleGrid = grid;
             Enemies = enemies;
@@ -62,8 +63,8 @@ namespace Main
                 while (enemy.Coordinates.Sum().Equals(0) || enemy.Coordinates.SequenceEqual(Player.Coordinates))
                 {
                     enemy.Coordinates.Clear();
-                    int coordX = Methods.RollD(BattleGrid.Count);
-                    int coordY = Methods.RollD(BattleGrid[0].Count);
+                    int coordX = Methods.RollD(BattleGrid[0].Count);
+                    int coordY = Methods.RollD(BattleGrid.Count);
                     enemy.Coordinates.Add(coordX);
                     enemy.Coordinates.Add(coordY);
                 }
@@ -71,13 +72,31 @@ namespace Main
 
             // determine first turn by highest initiative 
             Player.Initiative = Methods.RollStat(Player.DEX) + SurpriseInitiative;
-            int MaxInitiative = 0;
+            Dictionary<string, int> EnemyInitiatives = new Dictionary<string, int>();
+
             foreach (Creature enemy in Enemies)
             {
-                if (enemy.Initiative > MaxInitiative) { MaxInitiative = enemy.Initiative; }
+                if (!EnemyInitiatives.ContainsKey(enemy.Type))
+                {
+                    EnemyInitiatives.Add(enemy.Type, enemy.Initiative);
+                }
+                else if (EnemyInitiatives.ContainsKey(enemy.Type) && enemy.Initiative > EnemyInitiatives[enemy.Type])
+                {
+                    EnemyInitiatives[enemy.Type] = enemy.Initiative;
+                }
             }
 
-            if (Player.Initiative >= MaxInitiative) { PlayerTurn(); } else { EnemyTurn(); }
+            if (Player.Initiative >= EnemyInitiatives.Values.Max()) { PlayerTurn(); } else { EnemyTurn(); }
+
+            // List<List<Creature>> FightResults = new List<List<Creature>> { EnemiesEscaped, EnemiesKilled };
+
+            foreach (Creature enemy in EnemiesKilled)
+            {
+                foreach (GameItems.Item item in enemy.Inventory)
+                {
+                    Player.CurrentLocation.LocationInventory.Add(item);
+                }                
+            }
         }
 
         private void PlayerTurn()
@@ -92,7 +111,7 @@ namespace Main
             Console.WriteLine(GridImages[GridImage_dimensions]);                                                                                    // temp
             Console.WriteLine(Player.Name + ": " + Player.Coordinates[0] + ", " + Player.Coordinates[1]);                                           // temp
             foreach (Creature enemy in Enemies) { Console.WriteLine(enemy.Name + ": " + enemy.Coordinates[0] + ", " + enemy.Coordinates[1]); }      // temp
-            Console.WriteLine();                                                                                                                    // temp    
+            Console.WriteLine();                                                                                                                    // temp
 
             // Player Turn Loop
             while (Player.IsAlive() && Enemies.Count > 0 && TurnActions < 2)
@@ -229,7 +248,7 @@ namespace Main
 
             else if (!Player.IsAlive())
             {
-                Methods.Typewriter(string.Format("The darkness closes in as {0} breathes his last... " +
+                Methods.Typewriter(string.Format("The darkness closes in as {0} breathes his last... /n" +
                     "So ends the tale of this gallant rogue.", Player.Name));
                 Environment.Exit(0);
             }
@@ -417,7 +436,7 @@ namespace Main
                 if (!Target.CoverName.Count().Equals(0))
                 {
                     Methods.Tile TargetTile = Methods.FindTile(Target.Coordinates[0], Target.Coordinates[1], BattleGrid);
-                    GameItems.Cover TargetCover = TargetTile.Cover.Where(cover => cover.Name.Equals(Target.CoverName, StringComparison.Ordinal)).First();
+                    GameItems.Item TargetCover = TargetTile.Cover.Where(cover => cover.Name.Equals(Target.CoverName, StringComparison.Ordinal)).First();
 
                     TargetCover.RoomUsed -= Target.Size;
                     Target.CoverName = "";
@@ -494,7 +513,7 @@ namespace Main
                 if (!Target.CoverName.Count().Equals(0))
                 {
                     Methods.Tile TargetTile = Methods.FindTile(Target.Coordinates[0], Target.Coordinates[1], BattleGrid);
-                    GameItems.Cover TargetCover = TargetTile.Cover.Where(cover => cover.Name.Equals(Target.CoverName, StringComparison.Ordinal)).First();
+                    GameItems.Item TargetCover = TargetTile.Cover.Where(cover => cover.Name.Equals(Target.CoverName, StringComparison.Ordinal)).First();
 
                     TargetCover.RoomUsed -= Target.Size;
                     Target.CoverName = "";
@@ -609,9 +628,6 @@ namespace Main
                 choices[1] = "Keep Position";
                 choices[2] = "Move";
 
-                Methods.PrintOptions(choices);
-                int playerChoice = Methods.GetPlayerChoice(choices.Count);
-
                 List<string> GatherCover = Methods.FindTile(Player.Coordinates[0], Player.Coordinates[1], BattleGrid)
                     .Cover.Where(cover => cover.RoomUsed < cover.Room).Select(cover => cover.Name).ToList();
 
@@ -623,6 +639,9 @@ namespace Main
                 {
                     choices[3] = "Take Cover";
                 }
+
+                Methods.PrintOptions(choices);
+                int playerChoice = Methods.GetPlayerChoice(choices.Count);
 
                 switch (playerChoice)
                 {
