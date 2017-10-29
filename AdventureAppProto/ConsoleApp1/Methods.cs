@@ -14,6 +14,58 @@ namespace Main
             Rnd = new Random();
         }
 
+        public static void SearchForItems(List<GameItems.Item> list)
+        {
+            List<GameItems.Item> LootFound = new List<GameItems.Item>();
+
+            foreach (GameItems.Item item in list)
+            {
+                if (!LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)))
+                {
+                    LootFound.Add(item);
+                }
+                else if (LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)))
+                {
+                    LootFound.Find(loot => loot.Name.Equals(item.Name)).Amount += 1;
+                }
+            }
+
+            while (!LootFound.Count.Equals(0))
+            {
+                int lootNum = 1;
+                foreach (GameItems.Item loot in LootFound)
+                {
+                    Console.WriteLine(" " + lootNum + " - " + loot.Name + " (" + loot.Amount + ")");
+                    lootNum++;
+                }
+                Console.WriteLine(" " + lootNum + " -" + " (done)");
+
+                int PlayerChoice = GetPlayerChoice(LootFound.Count + 1);
+
+                if (PlayerChoice.Equals(LootFound.Count + 1)) { LootFound.Clear(); return; }
+                else
+                {
+                    GameItems.Item TargetItem = LootFound[PlayerChoice - 1];
+                    int NumOwned = 1;
+
+                    if (TargetItem.Amount > 1) { TargetItem.Amount -= 1; }
+                    else { LootFound.Remove(TargetItem); list.Remove(TargetItem); }
+
+                    if (Player.Inventory.Exists(item => item.Name.Equals(TargetItem.Name)))
+                    {
+                        Player.Inventory.Find(item => item.Name.Equals(TargetItem.Name)).Amount += 1;
+                        NumOwned = Player.Inventory.Find(item => item.Name.Equals(TargetItem.Name)).Amount;
+                    }
+                    else
+                    {
+                        Player.Inventory.Add(MakeItem(TargetItem));
+                    }
+
+                    Typewriter(string.Format("{0} taken ({1} owned)", TargetItem.Name, NumOwned));
+                }
+            }
+        }
+
         public static GameItems.Item MakeItem(GameItems.Item item)
         {
             GameItems.Item newItem = null;

@@ -160,7 +160,71 @@ namespace Main.Locations
             // abrupt location change
             Player.CurrentLocation = World.FindLocation(World.GoblinAmbush_DownedHorses_ID);
 
-            Methods.Typewriter("(goblin fight)");       // temp
+            // grid design
+            var GridSize = Tuple.Create(4, 3);
+
+            Dictionary<int, string> TileDescriptions = new Dictionary<int, string>()
+            {
+                { 1, "the forest" },
+                { 2, "the forest" },
+                { 3, "the forest" },
+                { 4, "the forest" },
+                { 5, "the west end of the road" },
+                { 6, "the middle of the road" },
+                { 7, "the downed horses" },
+                { 8, "the estern end of the road" },
+                { 9, "the forest" },
+                { 10, "the forest" },
+                { 11, "the forest" },
+                { 12, "the forest" }
+            };
+
+            Dictionary<int, List<GameItems.Item>> TileCover = new Dictionary<int, List<GameItems.Item>>()
+            {
+                { 1, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterLargeTrees) } },
+                { 2, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeBoulder),
+                                                Methods.MakeItem(GameItems.Cover_SmallTree) } },
+                { 3, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree),
+                                                Methods.MakeItem(GameItems.Cover_SmallTree),
+                                                Methods.MakeItem(GameItems.Cover_SmallBoulder) } },
+                { 4, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree),
+                                                Methods.MakeItem(GameItems.Cover_ClusterSmallTrees) } },
+                { 5, new List<GameItems.Item>() },
+                { 6, new List<GameItems.Item>() },
+                { 7, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_DownedHorses) } },
+                { 8, new List<GameItems.Item>() },
+                { 9, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterSmallTrees),
+                                                Methods.MakeItem(GameItems.Cover_MediumBoulder) } },
+                { 10, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_FallenTree),
+                                                 Methods.MakeItem(GameItems.Cover_SmallTree) } },
+                { 11, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterLargeTrees) } },
+                { 12, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_SmallBoulder),
+                                                 Methods.MakeItem(GameItems.Cover_MediumBoulder),
+                                                 Methods.MakeItem(GameItems.Cover_SmallTree) } },
+            };
+
+            // check for tool cart
+            if (LocationInventory.Exists(item => item.Name.Equals(GameItems.QItems_ToolCart.Name)))
+            {
+                TileDescriptions[5] = "the tool cart";
+                TileCover[5].Add(Methods.MakeItem(GameItems.Cover_ToolCart));
+            }
+
+            List<List<Methods.Tile>> BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);
+
+            // combatants and positions
+            List<Creatures.Creature> Enemies = new List<Creatures.Creature>
+            {
+                new Creatures.Goblin("Elf Ears"),
+                new Creatures.Goblin("Pot Belly"),
+                new Creatures.Goblin("Buck Tooth"),
+                new Creatures.Goblin("Rat Breath"),
+                new Creatures.Goblin("Hang Nail")
+            };
+
+            Player.Coordinates = new List<int> { 1, 2 };
+
+            Fight GoblinFight = new Fight(BattleGrid, Enemies, "4x3");
 
             GoblinAmbush.Note_FoughtGoblins = true;
             GoblinAmbush.Note_RoadFight = true;
@@ -171,10 +235,10 @@ namespace Main.Locations
 
         private void GoblinFight_Camp()
         {
+            Methods.Typewriter("(creeping up on the goblins text)");
+
             // abrupt location change
             Player.CurrentLocation = World.FindLocation(World.GoblinAmbush_PathRoad_ID);
-
-            Methods.Typewriter("(goblin fight)");       // temp
 
             // grid design
             var GridSize = Tuple.Create(2, 2);
@@ -189,11 +253,13 @@ namespace Main.Locations
 
             Dictionary<int, List<GameItems.Item>> TileCover = new Dictionary<int, List<GameItems.Item>>()
             {
-                { 1, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_FallenTree),
-                                                Methods.MakeItem(GameItems.Cover_ClusterSmallTrees) } },
-                { 2, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeBoulder) } },
-                { 3, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree) } },
-                { 4, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_SmallTree) } }
+                { 1, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterLargeTrees) } },
+                { 2, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree),
+                                                Methods.MakeItem(GameItems.Cover_SmallBoulder) } },
+                { 3, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_SmallTree),
+                                                Methods.MakeItem(GameItems.Cover_LargeBoulder) } },
+                { 4, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_FallenTree),
+                                                Methods.MakeItem(GameItems.Cover_ClusterSmallTrees) } }
             };
 
             var BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);

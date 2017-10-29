@@ -127,8 +127,6 @@ namespace Main.Locations
 
         private void GoblinFight()
         {
-            Methods.Typewriter("(goblin fight)");       // temp
-
             // grid design
             var GridSize = Tuple.Create(4, 3);
 
@@ -179,7 +177,7 @@ namespace Main.Locations
                 TileCover[5].Add(Methods.MakeItem(GameItems.Cover_ToolCart));
             }
 
-            var BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);
+            List<List<Methods.Tile>> BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);
 
             // combatants and positions
             List<Creatures.Creature> Enemies = new List<Creatures.Creature>
@@ -214,7 +212,7 @@ namespace Main.Locations
                 switch (_playerChoice)
                 {
                     case 1:
-                        SearchForItems();
+                        Methods.SearchForItems(Player.Inventory);
                         return;
 
                     case 2:
@@ -275,57 +273,6 @@ namespace Main.Locations
                 Methods.Typewriter("The site is filled with sights and smells of death and rot. Even standing nearby " +
                     "is beginning to become nigh unbearable. Soon only the flies will be able to examine the scene.");
             }            
-        }
-
-        private void SearchForItems()
-        {
-            List<GameItems.Item> LootFound = new List<GameItems.Item>();
-
-            foreach (GameItems.Item item in LocationInventory)
-            {
-                if (!LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)))
-                {
-                    LootFound.Add(item);
-                }
-                else if (LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)))
-                {
-                    LootFound.Find(loot => loot.Name.Equals(item.Name)).Amount += 1;
-                }
-            }
-
-            while (!LootFound.Count.Equals(0))
-            {
-                int lootNum = 1;
-                foreach (GameItems.Item loot in LootFound)
-                {
-                    Console.WriteLine(" " + lootNum + " - " + loot.Name + " (" + loot.Amount + ")");
-                    lootNum++;
-                }
-                Console.WriteLine(" " + lootNum + " -" + " (done)");
-
-                int PlayerChoice = Methods.GetPlayerChoice(LootFound.Count + 1);
-
-                if (PlayerChoice.Equals(LootFound.Count + 1)) { LootFound.Clear(); return; }
-                else
-                {
-                    GameItems.Item TargetItem = LootFound[PlayerChoice - 1];
-                    int NumOwned = 1;
-
-                    if (TargetItem.Amount > 1) { TargetItem.Amount -= 1; } else { LootFound.Remove(TargetItem); }
-
-                    if (Player.Inventory.Exists(item => item.Name.Equals(TargetItem.Name)))
-                    {
-                        Player.Inventory.Find(item => item.Name.Equals(TargetItem.Name)).Amount += 1;
-                        NumOwned = Player.Inventory.Find(item => item.Name.Equals(TargetItem.Name)).Amount;
-                    }
-                    else
-                    {
-                        Player.Inventory.Add(Methods.MakeItem(TargetItem));
-                    }
-
-                    Methods.Typewriter(string.Format("{0} taken ({1} owned)", TargetItem.Name, NumOwned));
-                }
-            }
         }
 
         private void MoveHorses()
