@@ -134,37 +134,19 @@ namespace Main.Locations
 
             Dictionary<int, string> TileDescriptions = new Dictionary<int, string>()
             {
-                { 1, "the forest (1,1)" },
-                { 2, "the forest (2,1)" },
-                { 3, "the forest (3,1)" },
-                { 4, "the forest (4,1)" },
-                { 5, "the west end of the road (1,2)" },
-                { 6, "the middle of the road (2,2)" },
-                { 7, "the downed horses (3,2)" },
-                { 8, "the estern end of the road (4,2)" },
-                { 9, "the forest (1,3)" },
-                { 10, "the forest (2,3)" },
-                { 11, "the forest (3,3)" },
-                { 12, "the forest (4,3)" }
-            };            
-
-            /*
-            Dictionary<int, string> TileDescriptions = new Dictionary<int, string>()
-            {
-                { 1, "(1,1)" },
-                { 2, "(2,1)" },
-                { 3, "(3,1)" },
-                { 4, "(4,1)" },
-                { 5, "(1,2)" },
-                { 6, "(2,2)" },
-                { 7, "(3,2)" },
-                { 8, "(4,2)" },
-                { 9, "(1,3)" },
-                { 10, "(2,3)" },
-                { 11, "(3,3)" },
-                { 12, "(4,3)" }
+                { 1, "the forest" },
+                { 2, "the forest" },
+                { 3, "the forest" },
+                { 4, "the forest" },
+                { 5, "the west end of the road" },
+                { 6, "the middle of the road" },
+                { 7, "the downed horses" },
+                { 8, "the estern end of the road" },
+                { 9, "the forest" },
+                { 10, "the forest" },
+                { 11, "the forest" },
+                { 12, "the forest" }
             };
-            */
 
             Dictionary<int, List<GameItems.Item>> TileCover = new Dictionary<int, List<GameItems.Item>>()
             {
@@ -190,15 +172,12 @@ namespace Main.Locations
                                                  Methods.MakeItem(GameItems.Cover_SmallTree) } },
             };
 
-            /*
             // check for tool cart
             if (LocationInventory.Exists(item => item.Name.Equals(GameItems.QItems_ToolCart.Name)))
             {
-                TileDescriptions[5] = "the tool cart (1,2)";
+                TileDescriptions[5] = "the tool cart";
                 TileCover[5].Add(Methods.MakeItem(GameItems.Cover_ToolCart));
             }
-            */
-
 
             var BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);
 
