@@ -212,7 +212,7 @@ namespace Main.Locations
                 switch (_playerChoice)
                 {
                     case 1:
-                        Methods.SearchForItems(Player.Inventory);
+                        Methods.SearchForItems(LocationInventory);
                         return;
 
                     case 2:

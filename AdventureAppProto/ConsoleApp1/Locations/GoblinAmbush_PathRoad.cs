@@ -147,10 +147,51 @@ namespace Main.Locations
 
         private void GoblinFight()
         {
-            Methods.Typewriter("(goblin fight)");
+            Methods.Typewriter("(creeping up on the goblins text)");
+
+            // abrupt location change
+            Player.CurrentLocation = World.FindLocation(World.GoblinAmbush_PathRoad_ID);
+
+            // grid design
+            var GridSize = Tuple.Create(2, 2);
+
+            Dictionary<int, string> TileDescriptions = new Dictionary<int, string>()
+            {
+                { 1, "a fallen tree" },
+                { 2, "a large boulder" },
+                { 3, "a large tree" },
+                { 4, "a small tree" }
+            };
+
+            Dictionary<int, List<GameItems.Item>> TileCover = new Dictionary<int, List<GameItems.Item>>()
+            {
+                { 1, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterLargeTrees) } },
+                { 2, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree),
+                                                Methods.MakeItem(GameItems.Cover_SmallBoulder) } },
+                { 3, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_SmallTree),
+                                                Methods.MakeItem(GameItems.Cover_LargeBoulder) } },
+                { 4, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_FallenTree),
+                                                Methods.MakeItem(GameItems.Cover_ClusterSmallTrees) } }
+            };
+
+            var BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);
+
+            // combatants and positions
+            List<Creatures.Creature> Enemies = new List<Creatures.Creature>
+            {
+                new Creatures.Goblin("Elf Ears"),
+                new Creatures.Goblin("Pot Belly"),
+                new Creatures.Goblin("Buck Tooth"),
+                new Creatures.Goblin("Rat Breath"),
+                new Creatures.Goblin("Hang Nail")
+            };
+
+            Player.Coordinates = new List<int> { 1, 2 };
+
+            Fight GoblinFight = new Fight(BattleGrid, Enemies, "2x2");
+
             GoblinAmbush.Note_FoughtGoblins = true;
             GoblinAmbush.Note_CampFight = true;
-            Methods.Enter();
         }
 
         private void GoblinChat()
@@ -202,8 +243,8 @@ namespace Main.Locations
                 {
                     case 1:
                         GameItems.Item _goblinDice = LocationInventory.Find(item => item.Name.Equals(GameItems.Trinket_GoblinDice.Name));
-                        LocationInventory.Remove(_goblinDice);
                         Player.TakeItem(_goblinDice);
+                        LocationInventory.Remove(_goblinDice);
                         break;
 
                     case 2:
@@ -225,7 +266,8 @@ namespace Main.Locations
         private void SearchGoblins()
         {
             Console.WriteLine("(Search goblins)");
-            Methods.Enter();
+
+            Methods.SearchForItems(LocationInventory);
         }
     }
 }

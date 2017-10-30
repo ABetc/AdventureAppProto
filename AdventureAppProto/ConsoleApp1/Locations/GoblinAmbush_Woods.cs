@@ -52,8 +52,6 @@ namespace Main.Locations
                 }
             }
 
-            GoblinAmbush.Skill_Stealth = 2;     // temp
-
             // check if stealth is low enough to trigger a goblin fight
             if (GoblinAmbush.Skill_Stealth.Equals(0))
             {
@@ -67,6 +65,7 @@ namespace Main.Locations
                 GoblinFight();
             }
 
+            // if taking first activity at location
             if (Player.PreviousLocation.LocationID != LocationID)
             {
                 // automatic survival check for details in the woods
@@ -262,9 +261,14 @@ namespace Main.Locations
             }
         }
 
+        private void SearchGoblins()
+        {
+            Methods.SearchForItems(LocationInventory);
+        }
+
         private void CallOut()
         {
-            Dictionary<int, string> _choices = new Dictionary<int, string>();
+            Dictionary<int, string> _choices = new Dictionary<int, string>(); 
             Dictionary<int, string> _results = new Dictionary<int, string>();
 
             _choices[1] = "You mean no harm";
@@ -349,16 +353,61 @@ namespace Main.Locations
 
         private void GoblinFight()
         {
-            Methods.Typewriter("(goblin fight)");
+            // grid design
+            var GridSize = Tuple.Create(3, 3);
+
+            Dictionary<int, string> TileDescriptions = new Dictionary<int, string>()
+            {
+                { 1, "a cluster of small trees" },
+                { 2, "a cluster of large trees" },
+                { 3, "a moss covered boulder" },
+                { 4, "a fallen tree trunk" },
+                { 5, "a lone large tree" },
+                { 6, "a sapling and large tree" },
+                { 7, "a cluster of small trees" },
+                { 8, "a rocky outcrop" },
+                { 9, "a group of large trees" }
+            };
+
+            Dictionary<int, List<GameItems.Item>> TileCover = new Dictionary<int, List<GameItems.Item>>()
+            {
+                { 1, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterSmallTrees),
+                                                Methods.MakeItem(GameItems.Cover_SmallBoulder) } },
+                { 2, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterLargeTrees) } },
+                { 3, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterSmallTrees),
+                                                Methods.MakeItem(GameItems.Cover_LargeBoulder) } },
+                { 4, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_FallenTree),
+                                                Methods.MakeItem(GameItems.Cover_SmallTree),
+                                                Methods.MakeItem(GameItems.Cover_MediumBoulder) } },
+                { 5, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree) } },
+                { 6, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeTree),
+                                                Methods.MakeItem(GameItems.Cover_SmallTree) } },
+                { 7, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterSmallTrees),
+                                                Methods.MakeItem(GameItems.Cover_LargeTree) } },
+                { 8, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_LargeBoulder),
+                                                Methods.MakeItem(GameItems.Cover_SmallBoulder),
+                                                Methods.MakeItem(GameItems.Cover_SmallTree) } },
+                { 9, new List<GameItems.Item> { Methods.MakeItem(GameItems.Cover_ClusterLargeTrees) } }
+            };
+
+            var BattleGrid = Methods.MakeGrid(GridSize, TileDescriptions, TileCover);
+
+            // combatants and positions
+            List<Creatures.Creature> Enemies = new List<Creatures.Creature> 
+            {
+                new Creatures.Goblin("Elf Ears"),
+                new Creatures.Goblin("Pot Belly"),
+                new Creatures.Goblin("Buck Tooth"),
+                new Creatures.Goblin("Rat Breath"),
+                new Creatures.Goblin("Hang Nail")
+            };
+
+            Player.Coordinates = new List<int> { 1, 2 };
+
+            Fight GoblinFight = new Fight(BattleGrid, Enemies, "3x3");
 
             GoblinAmbush.Note_FoughtGoblins = true;
             GoblinAmbush.Note_WoodsFight = true;
-        }
-
-        private void SearchGoblins()
-        {
-            Methods.Typewriter("(search goblins)");
-            Methods.Enter();
         }
     }
 }
