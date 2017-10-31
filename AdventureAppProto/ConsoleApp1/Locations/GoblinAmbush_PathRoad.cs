@@ -202,27 +202,6 @@ namespace Main.Locations
 
         private void SearchCamp()
         {
-            if (GoblinAmbush.Note_CampFight)
-            {
-                Dictionary<int, string> _choices = new Dictionary<int, string>();
-
-                _choices[1] = "Search the goblins for any items of interest";
-                _choices[2] = "Search the remains of the goblin's camp";
-
-                Methods.PrintOptions(_choices);
-                int _playerChoice = Methods.GetPlayerChoice(_choices.Count);
-
-                switch (_playerChoice)
-                {
-                    case 1:
-                        SearchGoblins();
-                        return;
-
-                    case 2:
-                        break;
-                }
-            }
-
             GoblinAmbush.Skill_Investigation = Methods.RollStat(Player.WIS, "Investigation");
 
             if (GoblinAmbush.Skill_Investigation >= 10 && LocationInventory.Exists(item => item.Name.Equals(GameItems.Trinket_GoblinDice.Name)))
@@ -231,25 +210,7 @@ namespace Main.Locations
                     "pieces. Each one is a different shape but on whatever flat surfaces exist there are strange markings. They " +
                     "may be a part of some goblin ritual or pastime.");
 
-                Dictionary<int, string> _choices = new Dictionary<int, string>();
-
-                _choices[1] = "Take the bone dice";
-                _choices[2] = "Leave the item";
-
-                Methods.PrintOptions(_choices);
-                int _playerChoice = Methods.GetPlayerChoice(_choices.Count);
-
-                switch (_playerChoice)
-                {
-                    case 1:
-                        GameItems.Item _goblinDice = LocationInventory.Find(item => item.Name.Equals(GameItems.Trinket_GoblinDice.Name));
-                        Player.TakeItem(_goblinDice);
-                        LocationInventory.Remove(_goblinDice);
-                        break;
-
-                    case 2:
-                        break;
-                }
+                Methods.TakeItem(LocationInventory, Methods.MakeItem(GameItems.Trinket_GoblinDice));
             }
 
             if (GoblinAmbush.Skill_Investigation >= 5)
@@ -261,13 +222,20 @@ namespace Main.Locations
             {
                 Methods.Typewriter("Nothing about the scraps seems particularly interesting.");
             }
-        }
 
-        private void SearchGoblins()
-        {
-            Console.WriteLine("(Search goblins)");
+            // check for loot from possible goblin fight
+            if (GoblinAmbush.Note_CampFight)
+            {
+                Methods.Typewriter("(rummage through goblin gear text)");
 
-            Methods.SearchForItems(LocationInventory);
+                // exclude hidden items
+                List<GameItems.Item> Excluded = new List<GameItems.Item>
+                {
+                    Methods.MakeItem(GameItems.Trinket_GoblinDice)
+                };
+
+                Methods.SearchForItems(LocationInventory, Excluded);
+            }
         }
     }
 }

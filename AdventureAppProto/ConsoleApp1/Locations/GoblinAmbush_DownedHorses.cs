@@ -29,11 +29,7 @@ namespace Main.Locations
         public GoblinAmbush_DownedHorses(double id)
         {
             LocationID = id;
-            LocationInventory = new List<GameItems.Item>();
-
-            LocationInventory.Add(new GameItems.QuestItem(
-                GameItems.QItems_TatteredNote.Name,
-                GameItems.QItems_TatteredNote.Description));
+            LocationInventory.Add(Methods.MakeItem(GameItems.QItems_TatteredNote));
         }
 
         public override void OpeningText()
@@ -89,6 +85,11 @@ namespace Main.Locations
             if (LocationInventory.Exists(item => item.Name.Equals(GameItems.QItems_ToolCart.Name)))
             {
                 DownedHorses_Results[3] = (int)DownedHorses_Enum.Method_ContinueOn;
+            }
+
+            if (GoblinAmbush.Note_RoadFight)
+            {
+                DownedHorses_Options[1] = "Search the area and the goblin bodies";
             }
 
             Methods.PrintOptions(DownedHorses_Options);
@@ -199,27 +200,6 @@ namespace Main.Locations
 
         private void SearchArea()
         {
-            if (GoblinAmbush.Note_RoadFight)
-            {
-                Dictionary<int, string> _choices = new Dictionary<int, string>();
-
-                _choices[1] = "Search for loot or other items";
-                _choices[2] = "Examine the horses";
-
-                Methods.PrintOptions(_choices);
-                int _playerChoice = Methods.GetPlayerChoice(_choices.Count);
-
-                switch (_playerChoice)
-                {
-                    case 1:
-                        Methods.SearchForItems(LocationInventory);
-                        return;
-
-                    case 2:
-                        break;
-                }
-            }
-
             GoblinAmbush.Skill_Investigation = Methods.RollStat(Player.WIS, "Investigation");
 
             if (GoblinAmbush.Skill_Investigation >= 15 && LocationInventory.Exists(item => item.Name.Equals(GameItems.QItems_TatteredNote.Name)))
@@ -230,25 +210,7 @@ namespace Main.Locations
                     "here and was ambushed!");
                 Quests.GundrenKidnapped_TwoKidnapped = true;
 
-                Dictionary<int, string> _choices = new Dictionary<int, string>();
-
-                _choices[1] = "Take the tattered note";
-                _choices[2] = "Leave the item";
-
-                Methods.PrintOptions(_choices);
-                int _playerChoice = Methods.GetPlayerChoice(_choices.Count);
-
-                switch (_playerChoice)
-                {
-                    case 1:
-                        GameItems.Item _tatteredNote = LocationInventory.Find(item => item.Name.Equals(GameItems.QItems_TatteredNote.Name));
-                        LocationInventory.Remove(_tatteredNote);
-                        Player.TakeItem(_tatteredNote);
-                        break;
-
-                    case 2:
-                        break;
-                }
+                Methods.TakeItem(LocationInventory, Methods.MakeItem(GameItems.QItems_TatteredNote));
             }
             else if (GoblinAmbush.Skill_Investigation > 10 && !Quests.GundrenKidnapped_TwoKidnapped)
             {
@@ -272,7 +234,21 @@ namespace Main.Locations
             {
                 Methods.Typewriter("The site is filled with sights and smells of death and rot. Even standing nearby " +
                     "is beginning to become nigh unbearable. Soon only the flies will be able to examine the scene.");
-            }            
+            }
+
+            // check for loot from possible goblin fight
+            if (GoblinAmbush.Note_RoadFight)
+            {
+                Methods.Typewriter("(rummage around in goblin gear text)");
+
+                // exclude hidden items
+                List<GameItems.Item> Excluded = new List<GameItems.Item>
+                {
+                    Methods.MakeItem(GameItems.QItems_TatteredNote)
+                };
+
+                Methods.SearchForItems(LocationInventory, Excluded);
+            }
         }
 
         private void MoveHorses()

@@ -14,17 +14,50 @@ namespace Main
             Rnd = new Random();
         }
 
-        public static void SearchForItems(List<GameItems.Item> list)
+        public static void TakeItem(List<GameItems.Item> fromInventory, GameItems.Item takeItem)
+        {
+            Dictionary<int, string> choices = new Dictionary<int, string>()
+            {
+                { 1, string.Format("Take the {0}", takeItem.Name) },
+                { 2, "Leave the item" }
+            };
+
+            PrintOptions(choices);
+            int playerChoice = GetPlayerChoice(choices.Count);
+
+            switch (playerChoice)
+            {
+                case 1:
+                    GameItems.Item findItem = fromInventory.Find(item => item.Name.Equals(takeItem.Name));
+                    fromInventory.Remove(findItem);
+                    Player.Inventory.Add(findItem);
+                    Pause();
+                    Pause();
+                    Pause();
+                    Typewriter("(Picked up " + findItem.Name + ")");
+                    Pause();
+                    Pause();
+                    Pause();
+                    break;
+
+                case 2:
+                    break;
+            }
+        }
+
+        public static void SearchForItems(List<GameItems.Item> list, List<GameItems.Item> excludedItems)
         {
             List<GameItems.Item> LootFound = new List<GameItems.Item>();
 
             foreach (GameItems.Item item in list)
             {
-                if (!LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)))
+                if (!LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)) &&
+                    !excludedItems.Any(exclude => exclude.Name.Equals(item.Name)))
                 {
                     LootFound.Add(item);
                 }
-                else if (LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)))
+                else if (LootFound.Any(loot => loot.Name.Equals(item.Name)) && !item.GetType().Equals(typeof(GameItems.QuestItem)) &&
+                    !excludedItems.Any(exclude => exclude.Name.Equals(item.Name)))
                 {
                     LootFound.Find(loot => loot.Name.Equals(item.Name)).Amount += 1;
                 }
@@ -61,7 +94,13 @@ namespace Main
                         Player.Inventory.Add(MakeItem(TargetItem));
                     }
 
+                    Pause();
+                    Pause();
+                    Pause();
                     Typewriter(string.Format("{0} taken ({1} owned)", TargetItem.Name, NumOwned));
+                    Pause();
+                    Pause();
+                    Pause();
                 }
             }
         }
@@ -278,8 +317,8 @@ namespace Main
 
         public static void Typewriter(string text, string colour = "none")
         {
-            int typeSpeed = 0;          // 50
-            int SentencePause = 0;    // 600
+            int typeSpeed = 0;          // originally 50
+            int SentencePause = 0;      // originally 600
             int characterLimit = 80;
             int currentLineCount = 0;
 

@@ -43,7 +43,7 @@ namespace Main
 
         public static Location FindLocation(double id)
         {
-            foreach (var location in GameLocations)
+            foreach (Location location in GameLocations)
             {
                 if (location.LocationID == id)
                 {

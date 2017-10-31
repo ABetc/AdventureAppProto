@@ -22,7 +22,6 @@ namespace Main.Locations
             Method_CallOut,
             Method_Move,
             Method_FollowPath,
-            Method_SearchGoblins,
 
             GoTo_GoblinAmbush_PathRoad,
             GoTo_GoblinAmbush_PathCave,
@@ -136,9 +135,7 @@ namespace Main.Locations
 
                 if (GoblinAmbush.Note_WoodsFight)
                 {
-                    Woods_Options[1] = "Search the goblins for any items of interest";
-
-                    Woods_Results[1] = (int)Woods_Enum.Method_SearchGoblins;
+                    Woods_Options[1] = "Search the area and the goblins bodies";
                 }
             }
             else if (GoblinAmbush.Note_FoundGoblins)
@@ -198,10 +195,6 @@ namespace Main.Locations
                     FollowPath();
                     break;
 
-                case (int)Woods_Enum.Method_SearchGoblins:
-                    SearchGoblins();
-                    break;
-
                 case (int)Woods_Enum.GoTo_GoblinAmbush_PathRoad:
                     Player.CurrentLocation = World.FindLocation(World.GoblinAmbush_PathRoad_ID);
                     GoblinAmbush.ResetSkills();
@@ -259,11 +252,17 @@ namespace Main.Locations
                     Methods.Typewriter("A stillness hangs over the woods, nothing seems to stirr.");
                 }
             }
-        }
 
-        private void SearchGoblins()
-        {
-            Methods.SearchForItems(LocationInventory);
+            // check for loot from possible goblin fight
+            if (GoblinAmbush.Note_WoodsFight)
+            {
+                Methods.Typewriter("(rummage through goblin gear text)");
+
+                // exclude hidden items
+                List<GameItems.Item> Excluded = new List<GameItems.Item>();
+
+                Methods.SearchForItems(LocationInventory, Excluded);
+            }
         }
 
         private void CallOut()
